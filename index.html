@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Alzheimer's Care Partner – Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-SemiBold.otf') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Bold.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #b8cfc9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      min-height: 100vh;
+      padding: 32px 24px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* ─── Case switcher ─── */
+    .switcher {
+      display: flex;
+      gap: 8px;
+    }
+    .sw-btn {
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.22);
+      color: rgba(17,48,42,0.85);
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      white-space: nowrap;
+    }
+    .sw-btn.active {
+      background: #11302a;
+      color: #ffffff;
+      border-color: #11302a;
+    }
+    .sw-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.38);
+    }
+
+    /* ─── iPhone 13 device shell ─── */
+    .phone-device {
+      position: relative;
+      background: #1c1c1c;
+      border-radius: 56px;
+      padding: 12px;
+      box-shadow:
+        0 50px 100px rgba(0,0,0,0.45),
+        0 10px 30px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+    }
+    /* Volume / silent buttons (left side) */
+    .phone-device::before {
+      content: '';
+      position: absolute;
+      left: -3px;
+      top: 148px;
+      width: 3px;
+      height: 32px;
+      background: #2a2a2a;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 64px 0 #2a2a2a, 0 120px 0 #2a2a2a, 0 178px 0 #2a2a2a;
+    }
+    /* Power button (right side) */
+    .phone-device::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 218px;
+      width: 3px;
+      height: 88px;
+      background: #2a2a2a;
+      border-radius: 0 2px 2px 0;
+    }
+    /* ─── Phone screen ─── */
+    .phone {
+      width: 375px;
+      height: 844px;
+      background: #dfebe8;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    /* iPhone 13 notch */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 124px;
+      height: 30px;
+      background: #1c1c1c;
+      border-radius: 0 0 20px 20px;
+      z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      padding-bottom: 7px;
+    }
+    .phone-notch-speaker {
+      width: 56px;
+      height: 6px;
+      background: #2e2e2e;
+      border-radius: 3px;
+    }
+    .phone-notch-cam {
+      width: 10px;
+      height: 10px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      border: 1.5px solid #2e2e2e;
+      box-shadow: inset 0 0 3px rgba(0,0,0,0.8);
+      flex-shrink: 0;
+    }
+
+    /* gradient background on top portion */
+    .phone-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 359px;
+      background: linear-gradient(180deg, #c3d9d6 76.5%, #dfebe8 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Status bar ─── */
+    .status-bar {
+      height: 44px;
+      padding: 0 18px 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    .status-time {
+      font-weight: 600;
+      font-size: 15px;
+      color: #11302a;
+      letter-spacing: -0.165px;
+    }
+    .status-icons { display: flex; align-items: center; gap: 7px; }
+
+    /* ─── Scrollable content ─── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 1;
+      padding-top: 8px;
+    }
+    .main::-webkit-scrollbar { display: none; }
+
+    /* ─── Header ─── */
+    .header {
+      padding: 8px 24px 0 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .header-text {
+      flex: 1;
+      color: #11302a;
+    }
+    .greeting {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.64px;
+      display: block;
+    }
+    .greeting-bold {
+      font-weight: 700;
+    }
+    .subheading {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.64px;
+      display: block;
+    }
+
+    .notif-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.82);
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+      margin-top: 6px;
+      backdrop-filter: blur(4px);
+    }
+    .notif-dot {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 9px;
+      height: 9px;
+      background: #bf4075;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+
+    /* ─── Search bar ─── */
+    .search-wrap { padding: 16px 16px 8px; }
+    .search-bar {
+      height: 56px;
+      background: #f6f9f8;
+      border: 2px solid #177f6c;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      box-shadow: 0 1px 1px rgba(16,24,40,0.05);
+    }
+    .search-placeholder {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      color: #656766;
+      letter-spacing: -0.32px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ─── Profile card ─── */
+    .profile-card-wrap { padding: 8px 16px 0; }
+    .profile-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* ═══════════════════════════════════════════
+       OPTION 4 — AVATAR RING
+       Ring sweeps from 0 → 20% on load.
+       Confetti + badge pop at finish.
+    ════════════════════════════════════════════ */
+
+    /* Ring outer wrapper — 64×64 per Figma */
+    .ring-wrap {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    /* SVG ring rotated so arc starts at top */
+    .ring-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 64px;
+      height: 64px;
+      transform: rotate(-90deg);
+      overflow: visible;
+    }
+
+    /* Track: R=28, stroke-width=4 → fits in 64px box (28+2=30 ≤ 32) */
+    .ring-track {
+      fill: none;
+      stroke: #f5dce6;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    /* Progress arc — animated via JS */
+    .ring-progress {
+      fill: none;
+      stroke: url(#pinkGrad);
+      stroke-width: 4;
+      stroke-linecap: round;
+      /* circumference = 2π × 28 ≈ 175.93 */
+      stroke-dasharray: 175.93;
+      stroke-dashoffset: 175.93; /* start empty */
+    }
+
+
+    /* Inner avatar circle — 48×48, centred */
+    .avatar-inner {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      background: #fbeaef;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Percent badge */
+    .ring-badge {
+      position: absolute;
+      bottom: -8px;
+      left: calc(50% + 1px);
+      transform: translateX(-50%);
+      background: #bf4075;
+      border: 2px solid #ffffff;
+      border-radius: 24px;
+      padding: 0 9px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      letter-spacing: -0.28px;
+      line-height: 20px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      /* badge starts scaled down; pops in at finish */
+      opacity: 0;
+      transform: translateX(-50%) scale(0.4);
+    }
+
+    /* ─── Profile info ─── */
+    .profile-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .profile-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #3e4141;
+      letter-spacing: -0.36px;
+      line-height: 28px;
+    }
+    .profile-sub {
+      font-size: 16px;
+      font-weight: 400;
+      color: #656766;
+      letter-spacing: -0.28px;
+      line-height: 20px;
+    }
+
+    /* ─── Body copy ─── */
+    .profile-body {
+      font-size: 16px;
+      font-weight: 400;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      width: 311px;
+      max-width: 100%;
+    }
+
+    /* ─── CTA ─── */
+    .cta-btn {
+      height: 44px;
+      background: #e6f4ef;
+      border: 1px solid #347f71;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Poppins', sans-serif;
+      transition: opacity 0.15s ease;
+    }
+    .cta-btn:hover { opacity: 0.85; }
+    .cta-btn span {
+      font-size: 16px;
+      font-weight: 600;
+      color: #347f71;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+
+    /* ─── Current Stage card ─── */
+    .current-stage-section { padding: 16px 16px 16px; }
+    .current-stage-title {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 25px;
+      font-weight: 600;
+      color: #11302a;
+      line-height: 32px;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .current-stage-card {
+      background: #f6f9f8;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .current-stage-frame {
+      padding: 4px 4px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stage-illus {
+      width: 100%;
+      height: 156px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .stage-cloud-img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 141px;
+      object-fit: cover;
+    }
+    .stage-logo-circle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 51px;
+      background: #fff6f9;
+      border: 4px solid #ffffff;
+      border-radius: 100px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stage-logo-inner {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stage-logo-inner img { width: 100%; height: 100%; object-fit: contain; }
+    .stage-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 0 8px;
+      margin-top: 16px;
+    }
+    .stage-text-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+    }
+    .stage-heading {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #11302a;
+      line-height: 24px;
+      letter-spacing: -0.32px;
+      text-align: center;
+    }
+    .stage-sub {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #656766;
+      line-height: 24px;
+      letter-spacing: -0.32px;
+      text-align: center;
+    }
+    .stage-cta-btn {
+      background: #e6f4ef;
+      border: 1px solid #347f71;
+      border-radius: 40px;
+      height: 44px;
+      padding: 12px 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #347f71;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .stage-cta-btn:hover { opacity: 0.85; }
+
+    /* ─── Confetti FX layer ─── */
+    .fx-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 10;
+    }
+    .fx-piece {
+      position: absolute;
+      will-change: transform, opacity;
+    }
+
+    /* ─── 100% Celebration screen ─── */
+    .celebration-screen {
+      position: absolute;
+      inset: 0;
+      background: #dfebe8;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding-top: 44px;
+      padding-bottom: 104px; /* clear Continue button */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .celebration-screen.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .celebration-anim {
+      width: 100%;
+      height: 278px;
+      flex-shrink: 0;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .celebration-anim video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .celebration-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+      padding: 0 32px;
+      width: 100%;
+    }
+    .celebration-heading {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #11302a;
+      letter-spacing: -0.64px;
+      line-height: 1.1;
+    }
+    .celebration-subtext {
+      font-size: 16px;
+      color: #656766;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+    .celebration-btn-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 4px 16px 40px;
+    }
+    .celebration-btn {
+      width: 100%;
+      background: #1c4a43;
+      color: #f6f9f8;
+      border: none;
+      border-radius: 40px;
+      padding: 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    .celebration-btn:hover { opacity: 0.85; }
+
+    /* ─── Bottom nav ─── */
+    .bottom-nav { flex-shrink: 0; position: relative; z-index: 2; }
+    .tab-bar {
+      background: #f6f9f8;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -2px 8px rgba(20,20,20,0.04), 0 -1px 1px rgba(20,20,20,0.02);
+    }
+    .tab-item {
+      width: 56px;
+      height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .tab-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.24px;
+      line-height: 20px;
+    }
+    .tab-label.active { color: #1c4a43; }
+    .tab-label.inactive { color: #b6bfbd; }
+    .home-indicator-bar {
+      background: #f6f9f8;
+      height: 21px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+    }
+    .home-indicator {
+      width: 139px;
+      height: 5px;
+      background: #11302a;
+      border-radius: 100px;
+    }
+    /* ─── Two-phone review layout ─── */
+    .phones-row { display: flex; gap: 40px; align-items: flex-start; }
+    .phone-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .phone-label {
+      font-size: 11px; font-weight: 600; color: rgba(17,48,42,0.55);
+      letter-spacing: 1.2px; text-transform: uppercase;
+    }
+
+    /* ─── Profile card v2 (flat, progress bar) ─── */
+    .profile-card-wrap-v2 { padding: 8px 16px 0; }
+    .profile-card-v2 {
+      background: #ffffff; border-radius: 12px; padding: 16px;
+      display: flex; flex-direction: column; gap: 16px; overflow: hidden;
+    }
+    .profile-header-v2 { display: flex; align-items: center; gap: 12px; }
+    .profile-icon-box {
+      width: 48px; height: 48px; background: #fbeaef;
+      border: 1px solid rgba(191,64,117,0.33); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    /* 32×32 clipping wrapper — matches Figma "Profile Icon" node */
+    .profile-icon-clip { overflow: hidden; position: relative; width: 32px; height: 32px; flex-shrink: 0; }
+    /* Percentage insets trim the SVG's intrinsic bounds to its visible art */
+    .profile-icon-area { position: absolute; top: 3.12%; right: 14.51%; bottom: 3.13%; left: 16.8%; }
+    .profile-icon-bleed { position: absolute; inset: -1.67% -2.27% -1.66% -2.27%; }
+    .profile-icon-bleed img { display: block; max-width: none; width: 100%; height: 100%; }
+    .profile-info-v2 { flex: 1 0 0; display: flex; flex-direction: column; gap: 2px; min-width: 1px; word-break: break-word; }
+    .profile-name-v2 { font-size: 18px; font-weight: 600; color: #3e4141; letter-spacing: -0.36px; line-height: 28px; white-space: nowrap; }
+    .profile-strength-label { font-size: 16px; font-weight: 400; color: #3e4141; letter-spacing: -0.32px; line-height: 24px; white-space: nowrap; }
+    /* 24×24 chevron container — icon positioned at its natural 6×10px size */
+    .profile-chevron-v2 { position: relative; width: 24px; height: 24px; flex-shrink: 0; }
+    .profile-chevron-area { position: absolute; inset: 29.17% 37.5% 29.16% 37.5%; }
+    .profile-chevron-area img { position: absolute; display: block; inset: 0; max-width: none; width: 100%; height: 100%; }
+    .profile-progress-track { background: #edf3f2; border-radius: 24px; overflow: hidden; width: 100%; }
+    .profile-progress-fill {
+      height: 10px; border-radius: 24px;
+      background: linear-gradient(108.58deg, #177f6c 2%, #2bc2a9 100%);
+      width: 0%; transition: width 1.2s cubic-bezier(.34,1.4,.5,1);
+    }
+  </style>
+</head>
+<body>
+<!-- Case switcher -->
+<div class="switcher" id="switcher">
+  <button class="sw-btn active" data-case="0">0% → 40%</button>
+  <button class="sw-btn"        data-case="1">40% → 60%</button>
+  <button class="sw-btn"        data-case="2">60% → 90%</button>
+  <button class="sw-btn"        data-case="3">90% → 100%</button>
+</div>
+
+<div class="phones-row">
+<div class="phone-col">
+<p class="phone-label">Option A</p>
+<div class="phone-device">
+<div class="phone">
+  <!-- iPhone 13 notch -->
+  <div class="phone-notch">
+    <div class="phone-notch-speaker"></div>
+    <div class="phone-notch-cam"></div>
+  </div>
+
+  <div class="phone-bg"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <!-- Cellular signal -->
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+        <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+        <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+        <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+      </svg>
+      <!-- Wi-Fi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+        <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+        <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+        <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="main">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-text">
+        <span class="greeting">👋 <span class="greeting-bold">Hi, Gina</span></span>
+        <span class="subheading">How can I help today?</span>
+      </div>
+      <button class="notif-btn" aria-label="Notifications">
+        <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
+          <path d="M9 20a2 2 0 0 0 2-2H7a2 2 0 0 0 2 2zM15.73 13.59C15.26 13.07 14.5 12.3 14.5 10V8.5a5.5 5.5 0 0 0-4-5.29V2.5a1.5 1.5 0 1 0-3 0v.71A5.5 5.5 0 0 0 3.5 8.5V10c0 2.3-.76 3.07-1.23 3.59A1 1 0 0 0 3 15.5h12a1 1 0 0 0 .73-1.91z" fill="#11302a"/>
+        </svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M9.5 3a6.5 6.5 0 0 1 5.06 10.57L21 20l-1.41 1.41-6.44-6.44A6.5 6.5 0 1 1 9.5 3zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z" fill="#347f71"/>
+        </svg>
+        <span class="search-placeholder">Ask anything about dementia care...</span>
+      </div>
+    </div>
+
+    <!-- Profile card -->
+    <div class="profile-card-wrap">
+      <div class="profile-card" id="profileCard">
+
+        <!-- Profile header row -->
+        <div class="profile-header">
+
+          <!-- ═══════════════════════════════
+               OPTION 4 — AVATAR RING
+          ════════════════════════════════ -->
+          <div class="ring-wrap" id="ringWrap">
+
+            <!-- SVG ring (rotated -90° so arc starts at 12 o'clock) -->
+            <svg class="ring-svg" viewBox="0 0 64 64" aria-hidden="true">
+              <defs>
+                <linearGradient id="pinkGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#cc6691"/>
+                  <stop offset="100%" stop-color="#bf4075"/>
+                </linearGradient>
+              </defs>
+              <!-- Track ring -->
+              <circle class="ring-track" cx="32" cy="32" r="28"/>
+              <!-- Progress arc — dashoffset controlled by JS -->
+              <circle class="ring-progress" id="ringProgress" cx="32" cy="32" r="28"/>
+            </svg>
+
+            <!-- Inner avatar -->
+            <div class="avatar-inner">
+              <div class="profile-icon-clip">
+                <div class="profile-icon-area">
+                  <div class="profile-icon-bleed">
+                    <img src="assets/profile-icon-v2.svg" alt="Profile icon" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress badge -->
+            <div class="ring-badge" id="ringBadge">0%</div>
+          </div>
+          <!-- ═══════════════════════════════ -->
+
+          <div class="profile-info">
+            <p class="profile-name">Paula Cooper</p>
+            <p class="profile-sub">2 of 4 questions done</p>
+          </div>
+        </div>
+
+        <p class="profile-body">
+          Tell us a little more about who they are to improve recommendations.
+        </p>
+
+        <button class="cta-btn">
+          <span>Complete Profile</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="#347f71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+      </div><!-- /profile-card -->
+    </div><!-- /profile-card-wrap -->
+
+    <!-- Current Stage card -->
+    <div class="current-stage-section">
+      <p class="current-stage-title">Current Stage</p>
+      <div class="current-stage-card">
+        <div class="current-stage-frame">
+          <div class="stage-illus">
+            <img src="assets/stage-cloud.svg" alt="" class="stage-cloud-img" />
+            <div class="stage-logo-circle">
+              <div class="stage-logo-inner">
+                <img src="assets/stage-icon.svg" alt="" />
+              </div>
+            </div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-text-block">
+              <p class="stage-heading">Your journey starts here ✨</p>
+              <p class="stage-sub">We'll help you understand the current stage of dementia once you complete your first assessment</p>
+            </div>
+            <button class="stage-cta-btn">Take First Assessment</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /current-stage-section -->
+
+  </div><!-- /main -->
+
+  <!-- Bottom navigation -->
+  <div class="bottom-nav">
+    <div class="tab-bar">
+      <!-- Home (active) -->
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5L12 4l9 7.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V11.5z" fill="#1c4a43"/>
+          <path d="M9 22V14h6v8" stroke="#f6f9f8" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label active">Home</span>
+      </div>
+      <!-- Tracker -->
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17l5-5 4 4 5-6 4 3" stroke="#b6bfbd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="tab-label inactive">Tracker</span>
+      </div>
+      <!-- Report -->
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="3" width="14" height="18" rx="2" stroke="#b6bfbd" stroke-width="1.8"/>
+          <path d="M9 7h6M9 11h6M9 15h4" stroke="#b6bfbd" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Report</span>
+      </div>
+      <!-- Learn -->
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L2 8.5l10 5.5 10-5.5L12 3z" stroke="#b6bfbd" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M2 8.5V17M12 14v7M22 8.5V17" stroke="#b6bfbd" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Learn</span>
+      </div>
+      <!-- Settings -->
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="#b6bfbd" stroke-width="1.8"/>
+          <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" stroke="#b6bfbd" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Settings</span>
+      </div>
+    </div>
+    <div class="home-indicator-bar">
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 100% Celebration screen -->
+  <div class="celebration-screen" id="celebrationScreen" aria-hidden="true">
+    <div class="celebration-anim">
+      <video id="celebrationVideo" src="acp_confetti.mp4" muted playsinline loop></video>
+    </div>
+    <div class="celebration-content">
+      <h2 class="celebration-heading">You've done it!</h2>
+      <p class="celebration-subtext">Great job in completing the profile! You just helped your AI Care Partner personalize everything.</p>
+    </div>
+    <div class="celebration-btn-wrap">
+      <button class="celebration-btn" id="celebrationContinue">Continue</button>
+    </div>
+  </div>
+
+  <!-- Confetti overlay — outside profileCard so it is never clipped -->
+  <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+
+</div><!-- /phone -->
+</div><!-- /phone-device -->
+</div><!-- /phone-col A -->
+
+<!-- ─── Phone B ─── -->
+<div class="phone-col">
+<p class="phone-label">Option B</p>
+<div class="phone-device">
+<div class="phone">
+  <div class="phone-notch">
+    <div class="phone-notch-speaker"></div>
+    <div class="phone-notch-cam"></div>
+  </div>
+  <div class="phone-bg"></div>
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+        <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+        <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+        <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+        <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+        <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+      </svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+        <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+  <div class="main">
+    <div class="header">
+      <div class="header-text">
+        <span class="greeting">👋 <span class="greeting-bold">Hi, Gina</span></span>
+        <span class="subheading">How can I help today?</span>
+      </div>
+      <button class="notif-btn" aria-label="Notifications">
+        <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
+          <path d="M9 20a2 2 0 0 0 2-2H7a2 2 0 0 0 2 2zM15.73 13.59C15.26 13.07 14.5 12.3 14.5 10V8.5a5.5 5.5 0 0 0-4-5.29V2.5a1.5 1.5 0 1 0-3 0v.71A5.5 5.5 0 0 0 3.5 8.5V10c0 2.3-.76 3.07-1.23 3.59A1 1 0 0 0 3 15.5h12a1 1 0 0 0 .73-1.91z" fill="#11302a"/>
+        </svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M9.5 3a6.5 6.5 0 0 1 5.06 10.57L21 20l-1.41 1.41-6.44-6.44A6.5 6.5 0 1 1 9.5 3zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z" fill="#347f71"/>
+        </svg>
+        <span class="search-placeholder">Ask anything about dementia care...</span>
+      </div>
+    </div>
+    <!-- New profile card (Option B) -->
+    <div class="profile-card-wrap-v2" id="profileCardWrapV2">
+      <div class="profile-card-v2">
+        <div class="profile-header-v2">
+          <div class="profile-icon-box">
+            <div class="profile-icon-clip">
+              <div class="profile-icon-area">
+                <div class="profile-icon-bleed">
+                  <img src="assets/profile-icon-v2.svg" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-info-v2">
+            <p class="profile-name-v2">Paula Cooper</p>
+            <p class="profile-strength-label" id="strengthLabelV2">Profile strength: 0%</p>
+          </div>
+          <div class="profile-chevron-v2">
+            <div class="profile-chevron-area">
+              <img src="assets/chevron-right.svg" alt="" />
+            </div>
+          </div>
+        </div>
+        <p class="profile-body" id="profileBodyV2">Tell us a little more about who they are to improve recommendations.</p>
+        <div class="profile-progress-track">
+          <div class="profile-progress-fill" id="progressFillV2"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Current Stage card -->
+    <div class="current-stage-section">
+      <p class="current-stage-title">Current Stage</p>
+      <div class="current-stage-card">
+        <div class="current-stage-frame">
+          <div class="stage-illus">
+            <img src="assets/stage-cloud.svg" alt="" class="stage-cloud-img" />
+            <div class="stage-logo-circle">
+              <div class="stage-logo-inner">
+                <img src="assets/stage-icon.svg" alt="" />
+              </div>
+            </div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-text-block">
+              <p class="stage-heading">Your journey starts here ✨</p>
+              <p class="stage-sub">We'll help you understand the current stage of dementia once you complete your first assessment</p>
+            </div>
+            <button class="stage-cta-btn">Take First Assessment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /main -->
+  <div class="bottom-nav">
+    <div class="tab-bar">
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5L12 4l9 7.5V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V11.5z" fill="#1c4a43"/>
+          <path d="M9 22V14h6v8" stroke="#f6f9f8" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label active">Home</span>
+      </div>
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17l5-5 4 4 5-6 4 3" stroke="#b6bfbd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="tab-label inactive">Tracker</span>
+      </div>
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="3" width="14" height="18" rx="2" stroke="#b6bfbd" stroke-width="1.8"/>
+          <path d="M9 7h6M9 11h6M9 15h4" stroke="#b6bfbd" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Report</span>
+      </div>
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L2 8.5l10 5.5 10-5.5L12 3z" stroke="#b6bfbd" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M2 8.5V17M12 14v7M22 8.5V17" stroke="#b6bfbd" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Learn</span>
+      </div>
+      <div class="tab-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="#b6bfbd" stroke-width="1.8"/>
+          <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" stroke="#b6bfbd" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span class="tab-label inactive">Settings</span>
+      </div>
+    </div>
+    <div class="home-indicator-bar">
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <!-- Celebration screen B -->
+  <div class="celebration-screen" id="celebrationScreenB" aria-hidden="true">
+    <div class="celebration-anim">
+      <video id="celebrationVideoB" src="acp_confetti.mp4" muted playsinline loop></video>
+    </div>
+    <div class="celebration-content">
+      <h2 class="celebration-heading">You've done it!</h2>
+      <p class="celebration-subtext">Great job in completing the profile! You just helped your AI Care Partner personalize everything.</p>
+    </div>
+    <div class="celebration-btn-wrap">
+      <button class="celebration-btn" id="celebrationContinueB">Continue</button>
+    </div>
+  </div>
+
+  <!-- Confetti overlay B -->
+  <div class="fx-layer" id="fxLayerB" aria-hidden="true"></div>
+</div><!-- /phone B -->
+</div><!-- /phone-device B -->
+</div><!-- /phone-col B -->
+</div><!-- /phones-row -->
+
+<script>
+  /* ─── Constants ─── */
+  const R = 28;
+  const C = 2 * Math.PI * R;   // circumference ≈ 175.93
+  const ANIM_DELAY = 500;
+  const ANIM_DUR   = 1200;
+  const CONFETTI_DELAY = ANIM_DELAY + ANIM_DUR - 50;
+
+  /* ─── Case definitions (8 questions total) ─── */
+  const CASES = [
+    {
+      fromPct: 0,  toPct: 40,
+      sub:  '2 of 8 questions done',
+      body: 'Tell us a little more about who they are to improve recommendations.',
+      cta:  'Complete Profile',
+    },
+    {
+      fromPct: 40, toPct: 60,
+      sub:  '5 of 8 questions done',
+      body: 'Improve AI recommendations with a few more details.',
+      cta:  'Complete Profile',
+    },
+    {
+      fromPct: 60, toPct: 90,
+      sub:  '7 of 8 questions done',
+      body: 'You\'re almost done—make support even more personal.',
+      cta:  'Review Profile',
+    },
+    {
+      fromPct: 90, toPct: 100,
+      sub:  '8 of 8 questions done',
+      body: 'Complete the profile for the best experience!',
+      cta:  'View Recommendations',
+    },
+  ];
+
+  /* ─── DOM refs ─── */
+  const ringProgress = document.getElementById('ringProgress');
+  const ringBadge    = document.getElementById('ringBadge');
+  const fxLayer      = document.getElementById('fxLayer');
+  const fxLayerB     = document.getElementById('fxLayerB');
+  const ringWrap     = document.getElementById('ringWrap');
+  const profileCard  = document.getElementById('profileCard');
+
+  /* ─── Timer management (so switching cases cancels in-flight timers) ─── */
+  let _timers = [];
+  function later(fn, ms) { const id = setTimeout(fn, ms); _timers.push(id); return id; }
+  function clearAllTimers() { _timers.forEach(clearTimeout); _timers = []; }
+
+  /* ─── Count-up helper ─── */
+  function countUp(el, from, to, dur, suffix) {
+    const steps = Math.max(1, Math.round(dur / 30));
+    let i = 0;
+    if (el._timer) clearInterval(el._timer);
+    el.textContent = Math.round(from) + suffix;
+    el._timer = setInterval(() => {
+      i++;
+      const eased = 1 - Math.pow(1 - i / steps, 3);
+      el.textContent = Math.round(from + (to - from) * eased) + suffix;
+      if (i >= steps) { clearInterval(el._timer); el.textContent = Math.round(to) + suffix; }
+    }, 30);
+  }
+
+  /* ─── Ring sweep (fromPct → toPct) ─── */
+  function animateRing(fromPct, toPct) {
+    ringProgress.style.transition = 'none';
+    ringProgress.style.strokeDashoffset = C * (1 - fromPct / 100);
+
+    later(() => {
+      ringProgress.style.transition = `stroke-dashoffset ${ANIM_DUR}ms cubic-bezier(.34,1.4,.5,1)`;
+      ringProgress.style.strokeDashoffset = C * (1 - toPct / 100);
+      countUp(ringBadge, fromPct, toPct, ANIM_DUR, '%');
+    }, ANIM_DELAY);
+  }
+
+  /* ─── Badge pop-in ─── */
+  function popBadge(fromPct) {
+    ringBadge.style.transition = 'none';
+    ringBadge.style.transform  = 'translateX(-50%) scale(1)';
+    if (fromPct > 0) {
+      ringBadge.style.opacity = '1';
+    } else {
+      ringBadge.style.opacity = '0';
+      ringBadge.style.transform = 'translateX(-50%) scale(0.4)';
+      later(() => {
+        ringBadge.style.transition = 'opacity 0.25s ease, transform 0.45s cubic-bezier(.34,1.56,.64,1)';
+        ringBadge.style.opacity    = '1';
+        ringBadge.style.transform  = 'translateX(-50%) scale(1)';
+      }, ANIM_DELAY + 60);
+    }
+  }
+
+  /* ─── Confetti burst ─── */
+  function fireCelebrationIn(fxLayerEl, originEl, phoneEl, anchorRight) {
+    setTimeout(() => {
+      const wrRect    = originEl.getBoundingClientRect();
+      const phoneRect = phoneEl.getBoundingClientRect();
+      const cx = wrRect.left - phoneRect.left + (anchorRight ? wrRect.width : wrRect.width / 2);
+      const cy = wrRect.top  - phoneRect.top  + wrRect.height / 2;
+
+      /* Confetti colour palette */
+      const COLORS = ['#BF4075', '#347F71', '#F5C846'];
+
+      /*
+       * Physics model (canvas-confetti inspired):
+       *   each frame: vy += GRAV, vx *= DECAY, vy *= DECAY, pos += v
+       * DECAY simulates air resistance; GRAV is constant downward pull.
+       * We pre-compute positions via discrete simulation, then feed them as
+       * keyframes with easing:'linear' so the browser interpolates the
+       * physics arc accurately between samples.
+       */
+      const FPS   = 60;
+      const DECAY = 0.99;   /* velocity × DECAY per frame  */
+      const GRAV  = 0.11;   /* px added to vy per frame — lower = flies higher */
+      const STEPS = 20;     /* sample count — more = smoother arc */
+
+      const N = 22;
+      for (let i = 0; i < N; i++) {
+        const color = COLORS[i % COLORS.length];
+
+        /* Confetti shape: long strip (50%), wide strip (30%), square (20%) */
+        const roll = Math.random();
+        let w, h;
+        if (roll < 0.50) {
+          w = 2.5 + Math.random() * 2;   /* 2.5–4.5 px wide  */
+          h = 7   + Math.random() * 7;   /* 7–14 px tall     */
+        } else if (roll < 0.80) {
+          w = 7   + Math.random() * 7;   /* 7–14 px wide     */
+          h = 2.5 + Math.random() * 2;   /* 2.5–4.5 px tall  */
+        } else {
+          w = h = 5 + Math.random() * 4; /* 5–9 px square    */
+        }
+
+        const el = document.createElement('div');
+        el.className = 'fx-piece';
+        el.style.width        = w.toFixed(1) + 'px';
+        el.style.height       = h.toFixed(1) + 'px';
+        el.style.background   = color;
+        el.style.borderRadius = '1px';
+        /* Pre-offset so (0,0) in the animation = element centre at (cx,cy).
+           Pure px translate in every keyframe → GPU compositor path. */
+        el.style.left = (cx - w / 2).toFixed(1) + 'px';
+        el.style.top  = (cy - h / 2).toFixed(1) + 'px';
+
+        fxLayerEl.appendChild(el);
+
+        /* Launch: upward fan biased 20° right (ring is near left edge of phone).
+           90° spread + higher speed keeps elements in-bounds while flying higher. */
+        const center = -Math.PI * 7 / 18;              /* -70°: 20° right of straight up */
+        const spread =  Math.PI / 2;                   /* 90° total fan (±45°)           */
+        const ang    = center + (i / N - 0.5) * spread + (Math.random() * 0.2 - 0.1);
+        const speed  = 3.0 + Math.random() * 2.5;      /* 3.0–5.5 px/frame               */
+        let cvx = Math.cos(ang) * speed;
+        let cvy = Math.sin(ang) * speed;
+
+        /* Tumbling rotation — key ingredient for confetti realism */
+        const rotDir = Math.random() < 0.5 ? 1 : -1;
+        const rotSpd = 100 + Math.random() * 220;       /* deg/s */
+
+        const durMs = 2000 + Math.random() * 800;       /* 2000–2800 ms — longer arc */
+        const durFr = Math.round((durMs / 1000) * FPS);
+
+        /* Run discrete physics simulation, sample at STEPS intervals */
+        let px = 0, py = 0, frame = 0;
+        const pts = [[0, 0]];
+
+        for (let s = 1; s <= STEPS; s++) {
+          const target = Math.round((s / STEPS) * durFr);
+          while (frame < target) {
+            cvy += GRAV;
+            cvx *= DECAY;
+            cvy *= DECAY;
+            px  += cvx;
+            py  += cvy;
+            frame++;
+          }
+          pts.push([px, py]);
+        }
+
+        /* Map sampled positions → keyframes (linear between samples = accurate arc) */
+        const kf = pts.map(([x, y], s) => {
+          const frac = s / STEPS;
+          const t    = (frac * durMs) / 1000;
+          const rot  = rotDir * rotSpd * t;
+          const scl  = s === 0 ? 0 : 1;
+          const op   = frac < 0.4 ? 1 : Math.max(0, 1 - (frac - 0.4) / 0.6);
+          return {
+            offset:    frac,
+            transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rot.toFixed(0)}deg) scale(${scl})`,
+            opacity:   parseFloat(op.toFixed(3)),
+            easing:    'linear',
+          };
+        });
+
+        el.animate(kf, { duration: durMs, fill: 'both' });
+      }
+
+      setTimeout(() => { fxLayerEl.innerHTML = ''; }, 3200);
+    }, CONFETTI_DELAY);
+  }
+
+  function fireCelebration() {
+    fireCelebrationIn(fxLayer, ringWrap, document.querySelectorAll('.phone')[0]);
+    setTimeout(() => {
+      ringBadge.animate([
+        { transform: 'translateX(-50%) scale(1)'    },
+        { transform: 'translateX(-50%) scale(1.28)' },
+        { transform: 'translateX(-50%) scale(1)'    }
+      ], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+    }, CONFETTI_DELAY);
+  }
+
+  /* ─── Card entrance fade-in ─── */
+  function revealCard() {
+    profileCard.style.opacity   = '1';
+    profileCard.style.transform = 'translateY(0)';
+    profileCard.style.transition = 'none';
+  }
+
+  /* ─── Celebration screen (video) ─── */
+  const celebrationVideo  = document.getElementById('celebrationVideo');
+  const celebrationVideoB = document.getElementById('celebrationVideoB');
+
+  function showCelebration() {
+    const el = document.getElementById('celebrationScreen');
+    el.removeAttribute('aria-hidden');
+    el.classList.add('visible');
+    celebrationVideo.currentTime = 0;
+    celebrationVideo.play();
+  }
+
+  function showCelebrationB() {
+    const el = document.getElementById('celebrationScreenB');
+    el.removeAttribute('aria-hidden');
+    el.classList.add('visible');
+    celebrationVideoB.currentTime = 0;
+    celebrationVideoB.play();
+  }
+
+  function hideCelebration() {
+    const elA = document.getElementById('celebrationScreen');
+    elA.setAttribute('aria-hidden', 'true');
+    elA.classList.remove('visible');
+    celebrationVideo.pause();
+    const elB = document.getElementById('celebrationScreenB');
+    elB.setAttribute('aria-hidden', 'true');
+    elB.classList.remove('visible');
+    celebrationVideoB.pause();
+  }
+
+  /* ─── Audio ─── */
+  const _sndGrand = new Audio('sounds/meldix-success.mp3');
+  const _sndSmall = new Audio('sounds/meldix-success.mp3');
+  _sndGrand.volume = 1.0;
+  _sndSmall.volume = 0.7;
+
+  function playConfettiSound(grand) {
+    const snd = grand ? _sndGrand : _sndSmall;
+    snd.currentTime = 0;
+    snd.play().catch(() => {});
+  }
+
+  function playFanfare() { /* covered by confetti sound */ }
+
+  /* ─── Play a case ─── */
+  function playCase(idx) {
+    clearAllTimers();
+    fxLayer.innerHTML = '';
+    fxLayerB.innerHTML = '';
+    hideCelebration();
+
+    const c = CASES[idx];
+    document.querySelector('.profile-sub').textContent  = c.sub;
+    document.querySelector('.profile-body').textContent = c.body;
+    document.querySelector('.cta-btn span').textContent = c.cta;
+    document.querySelectorAll('.sw-btn').forEach((b, i) =>
+      b.classList.toggle('active', i === idx));
+
+    document.querySelector('.profile-card-wrap').style.display = '';
+    document.getElementById('profileCardWrapV2').style.display = '';
+    /* Sync Option B progress bar */
+    const fillV2  = document.getElementById('progressFillV2');
+    const labelV2 = document.getElementById('strengthLabelV2');
+    fillV2.style.transition = 'none';
+    fillV2.style.width = c.fromPct + '%';
+    labelV2.textContent = 'Profile strength: ' + c.fromPct + '%';
+    document.getElementById('profileBodyV2').textContent = c.body;
+    later(() => {
+      fillV2.style.transition = `width ${ANIM_DUR}ms cubic-bezier(.34,1.4,.5,1)`;
+      fillV2.style.width = c.toPct + '%';
+      labelV2.textContent = 'Profile strength: ' + c.toPct + '%';
+    }, ANIM_DELAY + 50);
+    revealCard();
+    animateRing(c.fromPct, c.toPct);
+    popBadge(c.fromPct);
+    if (idx !== 3) {
+      fireCelebration();
+      fireCelebrationIn(fxLayerB, document.getElementById('progressFillV2'), document.querySelectorAll('.phone')[1], true);
+    }
+    later(() => playConfettiSound(idx === 3), CONFETTI_DELAY);
+
+    if (idx === 3) {
+      later(showCelebration,  CONFETTI_DELAY + 400);
+      later(showCelebrationB, CONFETTI_DELAY + 400);
+      later(playFanfare,      CONFETTI_DELAY + 500);
+    }
+  }
+
+  /* ─── Switcher wiring ─── */
+  document.getElementById('switcher').addEventListener('click', e => {
+    const btn = e.target.closest('.sw-btn');
+    if (btn) playCase(Number(btn.dataset.case));
+  });
+
+  /* ─── Continue buttons ─── */
+  document.getElementById('celebrationContinue').addEventListener('click', () => {
+    document.querySelector('.profile-card-wrap').style.display = 'none';
+    hideCelebration();
+  });
+  document.getElementById('celebrationContinueB').addEventListener('click', () => {
+    document.getElementById('profileCardWrapV2').style.display = 'none';
+    hideCelebration();
+  });
+
+  /* ─── Init ─── */
+  playCase(0);
+</script>
+</body>
+</html>

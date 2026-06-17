@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Sound Picker – Playful</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: #b8cfc9; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 36px 24px; gap: 12px; }
+  h1 { font-size: 18px; font-weight: 600; color: #11302a; margin-bottom: 4px; }
+  p.sub { font-size: 13px; color: #4a7060; margin-bottom: 8px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px 20px; width: 380px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(17,48,42,0.08); }
+  .card.recommended { border: 2px solid #347f71; }
+  .rec-badge { font-size: 11px; font-weight: 600; color: #1c5c4a; background: #e6f4ef; padding: 2px 10px; border-radius: 20px; display: inline-block; margin-bottom: 4px; }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .play-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #347f71; background: #e6f4ef; color: #347f71; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .play-btn.playing { background: #347f71; color: #fff; }
+  .play-btn:hover:not(.playing) { background: #c8e8df; }
+  .info { flex: 1; }
+  .name { font-size: 15px; font-weight: 600; color: #11302a; }
+  .meta { font-size: 12px; color: #656766; margin-top: 2px; }
+  .bar-wrap { height: 3px; background: #e0ece9; border-radius: 2px; overflow: hidden; }
+  .bar { height: 100%; background: #347f71; width: 0%; transition: width 0.15s linear; }
+  .use-btn { width: 100%; padding: 10px; border: 1.5px solid #347f71; border-radius: 40px; background: transparent; color: #347f71; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .use-btn:hover { background: #e6f4ef; }
+  .use-btn.chosen { background: #347f71; color: #fff; border-color: #347f71; }
+</style>
+</head>
+<body>
+<h1>Pick a celebration sound</h1>
+<p class="sub">Playful options — warm and cheerful for a health app</p>
+
+<script>
+const SOUNDS = [
+  {
+    file: 'sounds/marimba-do-re-mi.mp3',
+    name: 'Marimba — Do Re Mi',
+    dur: '4.3s',
+    src: 'Freesound · CC-BY',
+    desc: '5 ascending notes — cheerful, warm, familiar melody',
+    recommended: true
+  },
+  {
+    file: 'sounds/station-chime.mp3',
+    name: 'Station chime',
+    dur: '3.2s',
+    src: 'Freesound · CC0',
+    desc: 'Friendly two-tone chime — pleasant and universally recognisable',
+    recommended: false
+  },
+  {
+    file: 'sounds/marimba-ringtone.mp3',
+    name: 'Marimba ringtone',
+    dur: '2.7s',
+    src: 'Freesound · CC-BY',
+    desc: 'Short crisp marimba phrase — upbeat and light',
+    recommended: false
+  },
+  {
+    file: 'sounds/xylophone-hit.mp3',
+    name: 'Xylophone hit',
+    dur: '2.9s',
+    src: 'Freesound · CC0',
+    desc: 'Single bright xylophone strike with resonance',
+    recommended: false
+  },
+  {
+    file: 'sounds/music-box-note.mp3',
+    name: 'Music box note',
+    dur: '2.3s',
+    src: 'Freesound · CC0',
+    desc: 'Delicate single music box tone — gentle and sweet',
+    recommended: false
+  },
+];
+
+let currentAudio = null;
+let currentInterval = null;
+
+SOUNDS.forEach((s, i) => {
+  const audio = new Audio(s.file);
+  const card = document.createElement('div');
+  card.className = 'card' + (s.recommended ? ' recommended' : '');
+
+  card.innerHTML = `
+    ${s.recommended ? '<span class="rec-badge">Recommended</span>' : ''}
+    <div class="row">
+      <button class="play-btn" id="btn${i}" aria-label="Play ${s.name}">&#9654;</button>
+      <div class="info">
+        <div class="name">${s.name}</div>
+        <div class="meta">${s.dur} &nbsp;·&nbsp; ${s.src}</div>
+        <div class="meta" style="color:#8aaa9a; font-size:11px; margin-top:2px;">${s.desc}</div>
+      </div>
+    </div>
+    <div class="bar-wrap"><div class="bar" id="bar${i}"></div></div>
+    <button class="use-btn" id="use${i}">Use this sound</button>
+  `;
+  document.body.appendChild(card);
+
+  const btn = card.querySelector('#btn' + i);
+  const bar = card.querySelector('#bar' + i);
+  const useBtn = card.querySelector('#use' + i);
+
+  btn.addEventListener('click', () => {
+    if (currentAudio && currentAudio !== audio) {
+      currentAudio.pause(); currentAudio.currentTime = 0;
+      clearInterval(currentInterval);
+      document.querySelectorAll('.play-btn').forEach(b => { b.innerHTML = '&#9654;'; b.classList.remove('playing'); });
+      document.querySelectorAll('.bar').forEach(b => b.style.width = '0%');
+    }
+    if (audio.paused) {
+      audio.currentTime = 0; audio.play();
+      currentAudio = audio;
+      btn.innerHTML = '&#9646;&#9646;'; btn.classList.add('playing');
+      currentInterval = setInterval(() => {
+        if (audio.duration) bar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      }, 80);
+    } else {
+      audio.pause(); btn.innerHTML = '&#9654;'; btn.classList.remove('playing'); clearInterval(currentInterval);
+    }
+    audio.onended = () => {
+      btn.innerHTML = '&#9654;'; btn.classList.remove('playing'); bar.style.width = '0%'; clearInterval(currentInterval);
+    };
+  });
+
+  useBtn.addEventListener('click', () => {
+    document.querySelectorAll('.use-btn').forEach(b => { b.classList.remove('chosen'); b.textContent = 'Use this sound'; });
+    useBtn.classList.add('chosen'); useBtn.textContent = '✓ Selected';
+  });
+});
+</script>
+</body>
+</html>

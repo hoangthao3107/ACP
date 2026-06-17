@@ -1,0 +1,28 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 335 141" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Cloud">
+<path id="BG" d="M0 126.335V0H335V126.512C335 127.222 334.297 127.713 333.638 127.448C295.69 112.158 229.987 93.9019 168 92C106.367 90.109 29.2771 113.056 1.44522 127.247C0.772983 127.59 0 127.089 0 126.335Z" fill="url(#paint0_linear_0_30)"/>
+<g id="Mask group">
+<mask id="mask0_0_30" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="336" height="128">
+<path id="BG_2" d="M0 128V0H335.002V128C292.774 112 235.312 92 168 92C99.5 92 29.6818 113.333 0 128Z" fill="url(#paint1_linear_0_30)"/>
+</mask>
+<g mask="url(#mask0_0_30)">
+<circle id="Background" opacity="0.5" cx="165.5" cy="93" r="62" stroke="var(--stroke-0, white)"/>
+<circle id="4" opacity="0.3" cx="165.5" cy="93" r="80" stroke="var(--stroke-0, #F6F9F8)"/>
+<circle id="7" opacity="0.2" cx="165.188" cy="93" r="100" stroke="var(--stroke-0, #F6F9F8)"/>
+<circle id="5" cx="114.625" cy="31" r="4" fill="var(--fill-0, #F6F9F8)"/>
+<circle id="8" cx="65.1875" cy="86" r="2" fill="var(--fill-0, #F6F9F8)"/>
+<circle id="6" cx="214.188" cy="55" r="5" fill="var(--fill-0, #F6F9F8)"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_30" x1="167.5" y1="-1.49012e-08" x2="167.379" y2="128" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CBE6DF"/>
+<stop offset="1" stop-color="#EEF7F4"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_30" x1="165.771" y1="128" x2="335.14" y2="128" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FBEAEF"/>
+<stop offset="1" stop-color="#8F0F57"/>
+</linearGradient>
+</defs>
+</svg>
