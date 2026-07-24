@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Ask AI Care Partner – Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-SemiBold.otf') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Bold.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #b8cfc9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      min-height: 100vh;
+      padding: 32px 24px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .demo-bar { display: flex; gap: 8px; align-items: center; }
+    .demo-label {
+      font-size: 12px; font-weight: 600; color: rgba(17,48,42,0.6);
+      letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    .demo-btn {
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.3);
+      color: rgba(17,48,42,0.85);
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .demo-btn:hover { background: rgba(255,255,255,0.5); }
+
+    /* ─── Two-phone comparison layout ─── */
+    .phones-row { display: flex; gap: 40px; align-items: flex-start; }
+    .phone-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .phone-label {
+      font-size: 11px; font-weight: 600; color: rgba(17,48,42,0.55);
+      letter-spacing: 1.2px; text-transform: uppercase; text-align: center;
+    }
+
+    /* ─── iPhone device shell ─── */
+    .phone-device {
+      position: relative;
+      background: #1c1c1c;
+      border-radius: 56px;
+      padding: 12px;
+      box-shadow:
+        0 50px 100px rgba(0,0,0,0.45),
+        0 10px 30px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+    }
+    .phone {
+      width: 375px;
+      height: 844px;
+      background: #dfebe8;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 124px; height: 30px;
+      background: #1c1c1c;
+      border-radius: 0 0 20px 20px;
+      z-index: 30;
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 8px; padding-bottom: 7px;
+    }
+    .phone-notch-speaker { width: 56px; height: 6px; background: #2e2e2e; border-radius: 3px; }
+    .phone-notch-cam {
+      width: 10px; height: 10px; background: #1a1a2e; border-radius: 50%;
+      border: 1.5px solid #2e2e2e; box-shadow: inset 0 0 3px rgba(0,0,0,0.8); flex-shrink: 0;
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 0 18px 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .status-time { font-weight: 600; font-size: 15px; color: #11302a; letter-spacing: -0.165px; }
+    .status-icons { display: flex; align-items: center; gap: 7px; }
+
+    /* ─── Screen carousel ─── */
+    .flow-viewport {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(.32,.72,0,1);
+      background: #dfebe8;
+    }
+    .screen.pos-active { transform: translateX(0); z-index: 2; }
+    /* Teal only behind the nav row (92px); white below so rounded corners on the
+       content card and footer reveal white, not teal — matches the Figma frame,
+       where both sit inside one continuous white card. */
+    .screen-chat { background: linear-gradient(#c3d9d6, #c3d9d6 92px, #f6f9f8 92px, #f6f9f8); }
+    .screen.pos-before { transform: translateX(-100%); }
+    .screen.pos-after  { transform: translateX(100%); }
+
+    /* ─── Screen 1: Question ─── */
+    .q-topbar { flex-shrink: 0; }
+    .q-close {
+      width: 40px; height: 40px;
+      margin: 4px 0 0 0;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      color: inherit; text-decoration: none;
+    }
+    .q-close-wrap { padding: 12px 16px 12px 8px; }
+    .q-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 8px 16px;
+      overflow-y: auto;
+    }
+    .q-title {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 25px;
+      font-weight: 600;
+      color: #11302a;
+      line-height: 32px;
+      letter-spacing: -0.5px;
+      padding: 8px 0;
+    }
+    .q-list { display: flex; flex-direction: column; gap: 8px; }
+    .q-item {
+      background: #f6f9f8;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .q-item span {
+      flex: 1;
+      font-size: 16px;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+    .q-item .q-check { width: 24px; height: 24px; flex-shrink: 0; display: none; }
+    .q-item.selected {
+      border-color: #347f71;
+    }
+    .q-item.selected .q-check { display: block; }
+
+    .q-footer {
+      flex-shrink: 0;
+      padding: 20px 16px 32px;
+      background: linear-gradient(180deg, rgba(237,243,242,0) 0%, rgba(237,243,242,0.5) 100%);
+    }
+    .q-continue {
+      width: 100%;
+      background: #b6c9c4;
+      color: #f6f9f8;
+      border: none;
+      border-radius: 40px;
+      padding: 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      cursor: not-allowed;
+      transition: background 0.2s ease, opacity 0.15s ease;
+    }
+    .q-continue.enabled {
+      background: #1c4a43;
+      cursor: pointer;
+    }
+    .q-continue.enabled:hover { opacity: 0.85; }
+
+    /* ─── Chat header (shared by screens 2 & 3) ─── */
+    .chat-nav {
+      flex-shrink: 0;
+      background: #c3d9d6;
+    }
+    .chat-nav-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      position: relative;
+    }
+    .chat-back {
+      width: 24px; height: 24px;
+      background: none; border: none; cursor: pointer; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .chat-nav-title {
+      flex: 1;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      margin-right: 24px;
+    }
+    /* Figma hides the nav title on the empty/prefilled screen — the avatar overlaps this row */
+    .screen-empty .chat-nav-title { opacity: 0; }
+
+    /* ─── Screen 2: Empty chat / prefilled ─── */
+    .chat-empty-body {
+      flex: 1;
+      background: #f6f9f8;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      padding-top: 79px;
+    }
+    /* Straddles the seam between the teal header and the white card, matching Figma. */
+    .chat-avatar {
+      position: absolute;
+      top: 51px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 108px;
+      height: 108px;
+      flex-shrink: 0;
+      z-index: 5;
+    }
+    .chat-avatar img { width: 100%; height: 100%; object-fit: contain; }
+    .chat-empty-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      width: 343px;
+      max-width: 100%;
+      margin-top: 8px;
+    }
+    .chat-empty-heading {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 25px;
+      font-weight: 600;
+      color: #11302a;
+      line-height: 32px;
+      letter-spacing: -0.5px;
+    }
+    .chat-empty-sub {
+      font-size: 16px;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+    .chat-faq-wrap {
+      margin-top: auto;
+      width: 343px;
+      max-width: 100%;
+      padding: 16px 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chat-faq-label { font-size: 16px; color: #656766; letter-spacing: -0.32px; }
+    .chat-faq-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .chat-faq-row::-webkit-scrollbar { display: none; }
+    .faq-item {
+      background: #dfebe8;
+      border: 1px solid #c3d9d6;
+      border-radius: 12px;
+      min-height: 44px;
+      width: 280px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 12px 16px;
+      font-size: 16px;
+      color: #11302a;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .faq-item:hover { background: #d3e5e1; }
+    .faq-item-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ─── Screen 3: Chat conversation ─── */
+    .chat-convo-body {
+      flex: 1;
+      background: #f6f9f8;
+      border-radius: 16px 16px 0 0;
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+    .chat-msg-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 6px 16px;
+      animation: msgIn 0.32s cubic-bezier(.22,1,.36,1) both;
+    }
+    .chat-msg-row.ai { justify-content: flex-start; align-items: flex-end; }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .chat-bubble {
+      background: #dfebe8;
+      border-radius: 12px 4px 12px 12px;
+      padding: 12px;
+      max-width: 256px;
+      font-size: 16px;
+      color: #11302a;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+    /* ─── AI reply — plain text, no bubble (matches Figma resolved-state frame) ─── */
+    .ai-msg-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 12px 0;
+      animation: msgIn 0.32s cubic-bezier(.22,1,.36,1) both;
+    }
+    .ai-msg-text {
+      padding: 0 16px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+    }
+    .ai-msg-actions {
+      display: flex; align-items: center; gap: 4px; padding: 0 8px;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .ai-msg-actions.ai-actions-hidden { opacity: 0; pointer-events: none; }
+    .ai-action-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      color: #656766;
+      border-radius: 8px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .ai-action-btn:hover { background: #edf3f2; color: #11302a; }
+    .ai-action-btn.saved { color: #347f71; }
+
+    /* ─── AI "thinking" — Option A: shimmering status text ─── */
+    .chat-thinking-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      animation: msgIn 0.2s ease-out both;
+      cursor: pointer;
+      min-height: 32px;
+    }
+    .thinking-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: -0.32px;
+      background: linear-gradient(90deg, #b6c9c4 0%, #11302a 38%, #347f71 55%, #b6c9c4 78%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: thinkingShimmer 1.65s linear infinite;
+    }
+    @keyframes thinkingShimmer {
+      0%   { background-position: 120% 0; }
+      100% { background-position: -120% 0; }
+    }
+
+    /* ─── AI "thinking" — Option B: three-dot bounce (from Three-Dots-2.svg) ─── */
+    .thinking-dots circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+    .thinking-dots .dot-1 { animation-delay: 0s; }
+    .thinking-dots .dot-2 { animation-delay: 0.15s; }
+    .thinking-dots .dot-3 { animation-delay: 0.3s; }
+    @keyframes dotBounce {
+      0%, 100% { transform: translateY(0); fill: #c3d9d6; }
+      30%      { transform: translateY(-6.667px); fill: #347f71; }
+    }
+
+    /* ─── AI "thinking" — Option C: guided breathing exercise ───
+       Recreated from Figma's own prototype animation (node 20073:29951):
+       a 9s linear loop, 4s inhale (grow) + 5s exhale (shrink) — an
+       intentionally longer exhale, a standard calming-breath ratio. */
+    .chat-breathing-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      width: 100%;
+      cursor: pointer;
+      animation: msgIn 0.2s ease-out both;
+    }
+    .breath-illustration {
+      position: relative;
+      width: 151px;
+      height: 151px;
+      flex-shrink: 0;
+    }
+    .breath-bg-outer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #edf3f2;
+    }
+    .breath-halo {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #c3d9d6;
+      transform: translate(-50%, -50%) scale(0.46);
+      animation: breathHaloScale 9s linear infinite;
+    }
+    @keyframes breathHaloScale {
+      0%      { transform: translate(-50%, -50%) scale(0.46); }
+      44.444% { transform: translate(-50%, -50%) scale(1); }
+      100%    { transform: translate(-50%, -50%) scale(0.46); }
+    }
+    .breath-core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 69px;
+      height: 69px;
+      border-radius: 50%;
+      background: #347f71;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .breath-label {
+      position: absolute;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: #ffffff;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      white-space: nowrap;
+    }
+    .breath-label-inhale { animation: breathInhaleFade 9s linear infinite; }
+    .breath-label-exhale { animation: breathExhaleFade 9s linear infinite; }
+    @keyframes breathInhaleFade {
+      0%      { opacity: 1; }
+      43.333% { opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); }
+      44.444% { opacity: 0; }
+      100%    { opacity: 0; }
+    }
+    @keyframes breathExhaleFade {
+      0%      { opacity: 0; }
+      44.333% { opacity: 0; animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); }
+      44.444% { opacity: 1; }
+      100%    { opacity: 1; }
+    }
+    .breathing-caption {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      text-align: center;
+    }
+
+    /* ─── Shared input bar (screens 2 & 3) ─── */
+    .chat-footer {
+      flex-shrink: 0;
+      background: #edf3f2;
+      border-top: 1px solid #c3d9d6;
+      border-radius: 16px 16px 0 0;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .input-bar {
+      background: #ffffff;
+      border: 1px solid #c3d9d6;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .input-text {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      color: #3e4141;
+      letter-spacing: -0.32px;
+      line-height: 24px;
+      height: 24px;
+      background: transparent;
+    }
+    .input-text::placeholder { color: #8b8e8d; }
+    .input-actions { display: flex; align-items: center; justify-content: space-between; }
+    .input-actions-left { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      background: none; border: none; cursor: pointer; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #11302a;
+    }
+    .send-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: not-allowed;
+      color: #8b8e8d;
+      transition: background 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .send-btn.active { background: #1c4a43; color: #f6f9f8; cursor: pointer; }
+    .send-btn.active:hover { opacity: 0.85; }
+    .disclaimer {
+      display: flex; align-items: center; justify-content: center; gap: 2px;
+    }
+    .disclaimer span {
+      font-size: 13px; color: #656766; letter-spacing: -0.26px; line-height: 16px;
+      white-space: nowrap;
+    }
+
+    .home-indicator-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 21px;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 8px;
+      z-index: 20;
+      pointer-events: none;
+    }
+    .home-indicator { width: 139px; height: 5px; background: #11302a; border-radius: 100px; }
+  </style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <span class="demo-label">Ask AI flow — thinking-state comparison</span>
+  <button class="demo-btn" id="restartBtn">Restart both</button>
+</div>
+
+<div class="phones-row">
+
+  <!-- ═══════════════════════ OPTION A — status text ═══════════════════════ -->
+  <div class="phone-col">
+    <p class="phone-label">Option A · Status text</p>
+    <div class="phone-device">
+    <div class="phone">
+      <div class="phone-notch">
+        <div class="phone-notch-speaker"></div>
+        <div class="phone-notch-cam"></div>
+      </div>
+
+      <div class="flow-viewport" id="viewport-a">
+
+        <!-- Screen 1 — Question -->
+        <div class="screen pos-active" id="screen1-a">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="q-topbar">
+            <div class="q-close-wrap">
+              <a class="q-close" href="index.html" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 4l12 12M16 4L4 16" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="q-body">
+            <p class="q-title">What's been hardest lately?</p>
+            <div class="q-list" id="qList-a"></div>
+          </div>
+
+          <div class="q-footer">
+            <button class="q-continue" id="continueBtn-a" disabled>Continue</button>
+          </div>
+        </div>
+
+        <!-- Screen 2 — Chat (prefilled) -->
+        <div class="screen screen-chat screen-empty pos-after" id="screen2-a">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo1-a" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-empty-body">
+            <div class="chat-avatar">
+              <img src="assets/ask-ai-avatar.svg" alt="" />
+            </div>
+            <div class="chat-empty-text">
+              <p class="chat-empty-heading">Ask your Care Partner</p>
+              <p class="chat-empty-sub">Get trusted support to help you reflect, stay grounded and handle difficult moments.</p>
+            </div>
+            <div class="chat-faq-wrap">
+              <p class="chat-faq-label">Sample questions for your Care Partner</p>
+              <div class="chat-faq-row">
+                <div class="faq-item"><span class="faq-item-text">I'm feeling overwhelmed. What can I do right now?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How do I respond when Mom is getting confused about things?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How to stay patient when I'm exhausted?</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput2-a" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn2-a" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3 — Chat conversation -->
+        <div class="screen screen-chat pos-after" id="screen3-a">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo2-a" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-convo-body" id="convoBody-a"></div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput3-a" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn3-a" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /flow-viewport -->
+
+      <div class="home-indicator-bar"><div class="home-indicator"></div></div>
+
+    </div><!-- /phone -->
+    </div><!-- /phone-device -->
+  </div><!-- /phone-col A -->
+
+  <!-- ═══════════════════════ OPTION B — three-dot bounce ═══════════════════════ -->
+  <div class="phone-col">
+    <p class="phone-label">Option B · Three dots</p>
+    <div class="phone-device">
+    <div class="phone">
+      <div class="phone-notch">
+        <div class="phone-notch-speaker"></div>
+        <div class="phone-notch-cam"></div>
+      </div>
+
+      <div class="flow-viewport" id="viewport-b">
+
+        <!-- Screen 1 — Question -->
+        <div class="screen pos-active" id="screen1-b">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="q-topbar">
+            <div class="q-close-wrap">
+              <a class="q-close" href="index.html" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 4l12 12M16 4L4 16" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="q-body">
+            <p class="q-title">What's been hardest lately?</p>
+            <div class="q-list" id="qList-b"></div>
+          </div>
+
+          <div class="q-footer">
+            <button class="q-continue" id="continueBtn-b" disabled>Continue</button>
+          </div>
+        </div>
+
+        <!-- Screen 2 — Chat (prefilled) -->
+        <div class="screen screen-chat screen-empty pos-after" id="screen2-b">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo1-b" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-empty-body">
+            <div class="chat-avatar">
+              <img src="assets/ask-ai-avatar.svg" alt="" />
+            </div>
+            <div class="chat-empty-text">
+              <p class="chat-empty-heading">Ask your Care Partner</p>
+              <p class="chat-empty-sub">Get trusted support to help you reflect, stay grounded and handle difficult moments.</p>
+            </div>
+            <div class="chat-faq-wrap">
+              <p class="chat-faq-label">Sample questions for your Care Partner</p>
+              <div class="chat-faq-row">
+                <div class="faq-item"><span class="faq-item-text">I'm feeling overwhelmed. What can I do right now?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How do I respond when Mom is getting confused about things?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How to stay patient when I'm exhausted?</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput2-b" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn2-b" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3 — Chat conversation -->
+        <div class="screen screen-chat pos-after" id="screen3-b">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo2-b" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-convo-body" id="convoBody-b"></div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput3-b" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn3-b" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /flow-viewport -->
+
+      <div class="home-indicator-bar"><div class="home-indicator"></div></div>
+
+    </div><!-- /phone -->
+    </div><!-- /phone-device -->
+  </div><!-- /phone-col B -->
+
+  <!-- ═══════════════════════ OPTION C — breathing exercise ═══════════════════════ -->
+  <div class="phone-col">
+    <p class="phone-label">Option C · Breathing exercise</p>
+    <div class="phone-device">
+    <div class="phone">
+      <div class="phone-notch">
+        <div class="phone-notch-speaker"></div>
+        <div class="phone-notch-cam"></div>
+      </div>
+
+      <div class="flow-viewport" id="viewport-c">
+
+        <!-- Screen 1 — Question -->
+        <div class="screen pos-active" id="screen1-c">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="q-topbar">
+            <div class="q-close-wrap">
+              <a class="q-close" href="index.html" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 4l12 12M16 4L4 16" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="q-body">
+            <p class="q-title">What's been hardest lately?</p>
+            <div class="q-list" id="qList-c"></div>
+          </div>
+
+          <div class="q-footer">
+            <button class="q-continue" id="continueBtn-c" disabled>Continue</button>
+          </div>
+        </div>
+
+        <!-- Screen 2 — Chat (prefilled) -->
+        <div class="screen screen-chat screen-empty pos-after" id="screen2-c">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo1-c" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-empty-body">
+            <div class="chat-avatar">
+              <img src="assets/ask-ai-avatar.svg" alt="" />
+            </div>
+            <div class="chat-empty-text">
+              <p class="chat-empty-heading">Ask your Care Partner</p>
+              <p class="chat-empty-sub">Get trusted support to help you reflect, stay grounded and handle difficult moments.</p>
+            </div>
+            <div class="chat-faq-wrap">
+              <p class="chat-faq-label">Sample questions for your Care Partner</p>
+              <div class="chat-faq-row">
+                <div class="faq-item"><span class="faq-item-text">I'm feeling overwhelmed. What can I do right now?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How do I respond when Mom is getting confused about things?</span></div>
+                <div class="faq-item"><span class="faq-item-text">How to stay patient when I'm exhausted?</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput2-c" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn2-c" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3 — Chat conversation -->
+        <div class="screen screen-chat pos-after" id="screen3-c">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+                <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+                <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+                <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+                <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+                <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+              </svg>
+              <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+                <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+                <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chat-nav">
+            <div class="chat-nav-row">
+              <button class="chat-back" id="backTo2-c" aria-label="Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 5l-7 7 7 7" stroke="#11302a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <span class="chat-nav-title">AI Assistant</span>
+            </div>
+          </div>
+
+          <div class="chat-convo-body" id="convoBody-c"></div>
+
+          <div class="chat-footer">
+            <div class="input-bar">
+              <textarea class="input-text" id="chatInput3-c" rows="1" placeholder="Ask Care Partner"></textarea>
+              <div class="input-actions">
+                <div class="input-actions-left">
+                  <button class="icon-btn" aria-label="Add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#11302a" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </button>
+                  <button class="icon-btn" aria-label="Voice input">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#11302a" stroke-width="1.6"/>
+                      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#11302a" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" id="sendBtn3-c" aria-label="Send">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="disclaimer">
+              <span>This result is not a replacement for medical care</span>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8.5" stroke="#656766" stroke-width="1.3"/>
+                <path d="M7.8 7.6a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.8-1.1 1.6" stroke="#656766" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="10" cy="13.8" r="0.9" fill="#656766"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /flow-viewport -->
+
+      <div class="home-indicator-bar"><div class="home-indicator"></div></div>
+
+    </div><!-- /phone -->
+    </div><!-- /phone-device -->
+  </div><!-- /phone-col C -->
+
+</div><!-- /phones-row -->
+
+<script>
+  const QUESTIONS = [
+    "They repeat the same questions",
+    "They get agitated (especially evenings)",
+    "They don't always recognize me",
+    "I'm worried about their safety",
+    "They refuse help",
+    "I'm exhausted",
+    "Family tension",
+    "I'm dreading what's ahead",
+  ];
+
+  /* ─── Canned, empathetic replies (demo only) ─── */
+  const REPLIES = {
+    "They repeat the same questions": "That kind of repetition can be exhausting to sit with, and it's okay to feel that. Try answering gently each time, as if it's the first — their need for reassurance is real, even when the words repeat.",
+    "They get agitated (especially evenings)": "Evening agitation is common enough to have a name — “sundowning.” Keeping the evening calm, predictable, and softly lit can sometimes ease it.",
+    "They don't always recognize me": "It's okay to feel this way. Caring for someone you love takes so much strength. Try placing one hand on your heart and taking three slow breaths. What matters to you most in this moment?",
+    "I'm worried about their safety": "That worry makes sense — safety concerns are often what weighs heaviest. Let's start with what concerns you most, like wandering or falls, and look at a few small changes that can help.",
+    "They refuse help": "Refusing help is often about holding onto independence, not about you. Offering small choices instead of instructions can sometimes make it feel less like a loss of control.",
+    "I'm exhausted": "Caregiver exhaustion is real, and it matters just as much as their care. Even five quiet minutes for yourself today counts — you can't pour from an empty cup.",
+    "Family tension": "Care decisions can bring up a lot between family members. It might help to agree on one shared source of truth, like a care plan, so everyone's working from the same page.",
+    "I'm dreading what's ahead": "It's natural to feel that way — uncertainty is heavy. You don't have to plan for everything today; we can take this one stage at a time, together.",
+  };
+  const DEFAULT_REPLIES = [
+    "Thank you for sharing that with me. Can you tell me a little more about what's been happening?",
+    "That sounds like a lot to carry. I'm here with you — what would feel most helpful right now?",
+    "I hear you. Let's take this one step at a time — what feels most pressing about it?",
+  ];
+  const THINKING_PHRASES = [
+    "Reading what you shared…",
+    "Reflecting on this…",
+    "Finding a thoughtful way to help…",
+  ];
+  const THINKING_DURATION = 5000;
+  const BREATH_CYCLE_MS = 9000; /* matches .breath-halo's 9s Figma-sourced loop — must finish one full cycle */
+  const CHAR_REVEAL_MS = 16; /* ~ WORD_REVEAL_MS(83) / avg 5.5 chars-per-word, keeps overall pace similar */
+
+  /**
+   * Builds one independent flow instance (Screen 1 → 2 → 3), scoped to elements
+   * whose ids end in `suffix` (e.g. "-a"). `thinkingMode` picks the Screen-3
+   * "thinking" indicator: 'shimmer' (Option A) or 'dots' (Option B).
+   */
+  function initFlow(suffix, thinkingMode) {
+    const el = (id) => document.getElementById(id + suffix);
+
+    const qList = el('qList');
+    const continueBtn = el('continueBtn');
+    const screen1 = el('screen1');
+    const screen2 = el('screen2');
+    const screen3 = el('screen3');
+    const chatInput2 = el('chatInput2');
+    const chatInput3 = el('chatInput3');
+    const sendBtn2 = el('sendBtn2');
+    const sendBtn3 = el('sendBtn3');
+    const convoBody = el('convoBody');
+
+    let selectedText = null;
+    let replyPoolIndex = 0;
+
+    /* ─── Build question list ─── */
+    QUESTIONS.forEach((text) => {
+      const btn = document.createElement('button');
+      btn.className = 'q-item';
+      btn.type = 'button';
+      btn.innerHTML = `
+        <span>${text}</span>
+        <svg class="q-check" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="#347f71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+      btn.addEventListener('click', () => {
+        selectedText = text;
+        qList.querySelectorAll('.q-item').forEach(item => item.classList.remove('selected'));
+        btn.classList.add('selected');
+        continueBtn.disabled = false;
+        continueBtn.classList.add('enabled');
+      });
+      qList.appendChild(btn);
+    });
+
+    /* ─── Screen navigation ─── */
+    function setScreen(active) {
+      [screen1, screen2, screen3].forEach((s, i) => {
+        const idx = i + 1;
+        s.classList.remove('pos-active', 'pos-before', 'pos-after');
+        if (idx === active) s.classList.add('pos-active');
+        else if (idx < active) s.classList.add('pos-before');
+        else s.classList.add('pos-after');
+      });
+    }
+
+    function autosize(input) {
+      input.style.height = 'auto';
+      input.style.height = input.scrollHeight + 'px';
+    }
+
+    function updateSendState(input, btn) {
+      const hasText = input.value.trim().length > 0;
+      btn.classList.toggle('active', hasText);
+      btn.disabled = !hasText;
+    }
+
+    /* ─── Conversation rendering (Screen 3) ─── */
+    function scrollConvoToBottom() {
+      convoBody.scrollTop = convoBody.scrollHeight;
+    }
+
+    function addUserMessage(text) {
+      const row = document.createElement('div');
+      row.className = 'chat-msg-row';
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      row.appendChild(bubble);
+      convoBody.appendChild(row);
+      scrollConvoToBottom();
+    }
+
+    /* Thinking state; clicking it skips straight to the reply. Renders the
+       shimmering status text (Option A), the three-dot bounce (Option B), or a
+       guided breathing exercise (Option C) depending on `thinkingMode`. */
+    function addThinkingRow(onSkip) {
+      const row = document.createElement('div');
+      row.title = 'Tap to skip';
+      row.addEventListener('click', () => onSkip());
+
+      let stopCycle = () => {};
+
+      if (thinkingMode === 'dots') {
+        row.className = 'chat-thinking-row';
+        row.innerHTML = `
+          <svg class="thinking-dots" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle class="dot-1" cx="6.667" cy="16" r="2.667" fill="#c3d9d6"/>
+            <circle class="dot-2" cx="16" cy="16" r="2.667" fill="#c3d9d6"/>
+            <circle class="dot-3" cx="25.333" cy="16" r="2.667" fill="#c3d9d6"/>
+          </svg>`;
+      } else if (thinkingMode === 'breathing') {
+        /* Timing/colors/text lifted directly from the Figma prototype animation
+           (node 20073:29951) — a 9s linear loop, entirely CSS-driven, no JS timer
+           needed: the "Inhale"/"Exhale" labels are two stacked, independently
+           keyframed opacity fades in sync with the halo's scale animation. */
+        row.className = 'chat-breathing-row';
+        row.innerHTML = `
+          <div class="breath-illustration">
+            <div class="breath-bg-outer"></div>
+            <div class="breath-halo"></div>
+            <div class="breath-core">
+              <span class="breath-label breath-label-inhale">Inhale</span>
+              <span class="breath-label breath-label-exhale">Exhale</span>
+            </div>
+          </div>
+          <p class="breathing-caption">While we are thinking,<br>take a breath…</p>`;
+      } else {
+        row.className = 'chat-thinking-row';
+        const label = document.createElement('span');
+        label.className = 'thinking-text';
+        label.textContent = THINKING_PHRASES[0];
+        row.appendChild(label);
+
+        let i = 0;
+        const cycleMs = THINKING_DURATION / THINKING_PHRASES.length;
+        const cycleTimer = setInterval(() => {
+          i = (i + 1) % THINKING_PHRASES.length;
+          label.textContent = THINKING_PHRASES[i];
+        }, cycleMs);
+        stopCycle = () => clearInterval(cycleTimer);
+      }
+
+      convoBody.appendChild(row);
+      scrollConvoToBottom();
+      return { row, stopCycle };
+    }
+
+    /* Reveals the AI reply one character at a time, like a drafting response. */
+    function streamAIReply(text) {
+      const block = document.createElement('div');
+      block.className = 'ai-msg-block';
+
+      const p = document.createElement('p');
+      p.className = 'ai-msg-text';
+      block.appendChild(p);
+
+      const actions = document.createElement('div');
+      actions.className = 'ai-msg-actions ai-actions-hidden';
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'ai-action-btn';
+      copyBtn.type = 'button';
+      copyBtn.setAttribute('aria-label', 'Copy response');
+      copyBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="6.5" y="6.5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M13.5 6.5V4.5a1 1 0 0 0-1-1H4.5a1 1 0 0 0-1 1V12a1 1 0 0 0 1 1h2" stroke="currentColor" stroke-width="1.4"/></svg>';
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText(text).catch(() => {});
+        copyBtn.classList.add('saved');
+        setTimeout(() => copyBtn.classList.remove('saved'), 900);
+      });
+      actions.appendChild(copyBtn);
+
+      const bookmarkBtn = document.createElement('button');
+      bookmarkBtn.className = 'ai-action-btn';
+      bookmarkBtn.type = 'button';
+      bookmarkBtn.setAttribute('aria-label', 'Save response');
+      bookmarkBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5.5 4.5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v11l-4.5-2.7L5.5 15.5v-11z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+      bookmarkBtn.addEventListener('click', () => bookmarkBtn.classList.toggle('saved'));
+      actions.appendChild(bookmarkBtn);
+
+      block.appendChild(actions);
+      block.title = 'Tap to skip';
+      convoBody.appendChild(block);
+      scrollConvoToBottom();
+
+      let i = 0;
+      let done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(streamTimer);
+        block.removeEventListener('click', finish);
+        p.textContent = text;
+        actions.classList.remove('ai-actions-hidden');
+        scrollConvoToBottom();
+      }
+
+      function revealNextChar() {
+        i++;
+        p.textContent = text.slice(0, i);
+        scrollConvoToBottom();
+        if (i >= text.length) finish();
+      }
+
+      const streamTimer = setInterval(revealNextChar, CHAR_REVEAL_MS);
+      block.addEventListener('click', finish);
+    }
+
+    function pickReply(topic) {
+      if (REPLIES[topic]) return REPLIES[topic];
+      const reply = DEFAULT_REPLIES[replyPoolIndex % DEFAULT_REPLIES.length];
+      replyPoolIndex++;
+      return reply;
+    }
+
+    function sendToAI(text) {
+      addUserMessage(text);
+      let resolved = false;
+      const resolve = () => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timer);
+        thinking.stopCycle();
+        thinking.row.remove();
+        streamAIReply(pickReply(text));
+      };
+      const thinking = addThinkingRow(resolve);
+      /* Breathing needs to run at least one full 9s cycle so the exercise never
+         gets cut mid-breath; the other modes use the shared thinking duration. */
+      const minWaitMs = thinkingMode === 'breathing' ? BREATH_CYCLE_MS : THINKING_DURATION;
+      const timer = setTimeout(resolve, minWaitMs);
+    }
+
+    function handleEnterToSend(input, btn) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          if (!btn.disabled) btn.click();
+        }
+      });
+    }
+
+    /* Jumps straight to Screen 3 and kicks off the AI response — used by both
+       Continue (Screen 1) and Send (Screen 2), so neither leaves you stuck on
+       the empty/prefilled screen. */
+    function startConversation(msg) {
+      convoBody.innerHTML = '';
+      chatInput3.value = '';
+      autosize(chatInput3);
+      updateSendState(chatInput3, sendBtn3);
+      setScreen(3);
+      sendToAI(msg);
+    }
+
+    /* ─── Continue: Screen 1 → Screen 3 directly (skips the empty chat screen) ─── */
+    continueBtn.addEventListener('click', () => {
+      if (!selectedText) return;
+      // Keep Screen 2's input in sync so back-navigation from Screen 3 still
+      // shows what was sent, even though Continue no longer stops there.
+      chatInput2.value = selectedText;
+      autosize(chatInput2);
+      updateSendState(chatInput2, sendBtn2);
+      startConversation(selectedText);
+    });
+
+    chatInput2.addEventListener('input', () => {
+      autosize(chatInput2);
+      updateSendState(chatInput2, sendBtn2);
+    });
+    chatInput3.addEventListener('input', () => {
+      autosize(chatInput3);
+      updateSendState(chatInput3, sendBtn3);
+    });
+
+    handleEnterToSend(chatInput2, sendBtn2);
+    handleEnterToSend(chatInput3, sendBtn3);
+
+    /* ─── Sample question chips populate the input ─── */
+    screen2.querySelectorAll('.faq-item').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chatInput2.value = chip.textContent;
+        autosize(chatInput2);
+        updateSendState(chatInput2, sendBtn2);
+        chatInput2.focus();
+      });
+    });
+
+    /* ─── Send: Screen 2 → Screen 3 (first message) ─── */
+    sendBtn2.addEventListener('click', () => {
+      const msg = chatInput2.value.trim();
+      if (!msg) return;
+      startConversation(msg);
+    });
+
+    /* ─── Send: follow-up messages within Screen 3 ─── */
+    sendBtn3.addEventListener('click', () => {
+      const msg = chatInput3.value.trim();
+      if (!msg) return;
+      chatInput3.value = '';
+      autosize(chatInput3);
+      updateSendState(chatInput3, sendBtn3);
+      sendToAI(msg);
+    });
+
+    /* ─── Back navigation ─── */
+    el('backTo1').addEventListener('click', () => setScreen(1));
+    el('backTo2').addEventListener('click', () => setScreen(2));
+
+    setScreen(1);
+
+    return {
+      reset() {
+        selectedText = null;
+        qList.querySelectorAll('.q-item').forEach(item => item.classList.remove('selected'));
+        continueBtn.disabled = true;
+        continueBtn.classList.remove('enabled');
+        chatInput2.value = '';
+        chatInput3.value = '';
+        convoBody.innerHTML = '';
+        updateSendState(chatInput2, sendBtn2);
+        updateSendState(chatInput3, sendBtn3);
+        setScreen(1);
+      },
+    };
+  }
+
+  const flowA = initFlow('-a', 'shimmer');
+  const flowB = initFlow('-b', 'dots');
+  const flowC = initFlow('-c', 'breathing');
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    flowA.reset();
+    flowB.reset();
+    flowC.reset();
+  });
+</script>
+</body>
+</html>

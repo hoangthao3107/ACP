@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Care Level 1 – Loading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-SemiBold.otf') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'LT Soul';
+      src: url('fonts/LTSoul-Bold.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #b8cfc9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      min-height: 100vh;
+      padding: 32px 24px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .phone-label {
+      font-size: 11px; font-weight: 600; color: rgba(17,48,42,0.55);
+      letter-spacing: 1.2px; text-transform: uppercase; text-align: center;
+    }
+
+    /* ─── iPhone device shell ─── */
+    .phone-device {
+      position: relative;
+      background: #1c1c1c;
+      border-radius: 56px;
+      padding: 12px;
+      box-shadow:
+        0 50px 100px rgba(0,0,0,0.45),
+        0 10px 30px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+    }
+    .phone-device::before {
+      content: '';
+      position: absolute;
+      left: -3px;
+      top: 148px;
+      width: 3px;
+      height: 32px;
+      background: #2a2a2a;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 64px 0 #2a2a2a, 0 120px 0 #2a2a2a, 0 178px 0 #2a2a2a;
+    }
+    .phone-device::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 218px;
+      width: 3px;
+      height: 88px;
+      background: #2a2a2a;
+      border-radius: 0 2px 2px 0;
+    }
+    .phone {
+      width: 375px;
+      height: 844px;
+      background: #dfebe8;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 124px;
+      height: 30px;
+      background: #1c1c1c;
+      border-radius: 0 0 20px 20px;
+      z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      padding-bottom: 7px;
+    }
+    .phone-notch-speaker { width: 56px; height: 6px; background: #2e2e2e; border-radius: 3px; }
+    .phone-notch-cam {
+      width: 10px; height: 10px; background: #1a1a2e; border-radius: 50%;
+      border: 1.5px solid #2e2e2e; box-shadow: inset 0 0 3px rgba(0,0,0,0.8); flex-shrink: 0;
+    }
+
+    /* ─── Status bar ─── */
+    .status-bar {
+      height: 44px;
+      padding: 0 18px 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      background: #dfebe8;
+    }
+    .status-time { font-weight: 600; font-size: 15px; color: #11302a; letter-spacing: -0.165px; }
+    .status-icons { display: flex; align-items: center; gap: 7px; }
+
+    /* ─── Scrollable content ─── */
+    .main { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; z-index: 1; }
+    .main::-webkit-scrollbar { display: none; }
+
+    /* ─── Main Container band (exposes 8px c3d9d6 gaps between sections) ─── */
+    .cl-main-band {
+      background: #c3d9d6;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .cl-section { background: #dfebe8; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+    /* ─── Stages card ─── */
+    .cl-stages-card {
+      background: #f6f9f8;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+
+    /* Gauge — ported from Figma's native arc data (see handoff doc):
+       node 20063:16097, Start -3deg (fixed), Sweep 0% -> 38.61% of 360deg
+       (Figma inspector values, straight from the Arc properties panel —
+       more precise than the earlier radian-based estimate). Sweep 38.61%
+       = 138.996deg. Start -3deg is the ellipse's local angle *before* the
+       180deg rotation wrapper seen in the Figma export is applied; adding
+       that rotation plus the local->SVG-rotate axis offset (+90deg) gives
+       the "from" angle: -3 + 180 + 90 = 267deg.
+
+       Fill is a stroked circle with stroke-linecap: round (genuinely
+       rounded caps on both the fixed and growing end), but a circle is
+       only an approximation of the track's true (non-circular) band —
+       Figma masks the fill to the track's exact silhouette (visible when
+       scrubbing this node's keyframes in Figma), so the stroke is drawn
+       intentionally wide and clipped with the same mask shape used for
+       the track, guaranteeing pixel-perfect alignment regardless of the
+       circle-approximation's small radius error.
+       r=150.5, circumference C=2*pi*150.5=945.62. Sweep length at full
+       138.996deg = C * 138.996/360 = 365.1.
+
+       The track's Union shape is genuinely built from 4 separate
+       subpaths with small real gaps between them (left leg / right leg /
+       top-arch-left / top-arch-right) -- confirmed directly against
+       Figma's own rendering of this node, gaps included, so this is a
+       deliberate part of the design, not an export/rounding artifact.
+       Do NOT dilate/bridge the mask or track path to "fix" this -- an
+       earlier pass did exactly that and it was wrong (see handoff doc).
+       The circle approximation's radius error can still make the fill
+       sit slightly off from a real gap edge; if that's visible, fix the
+       circle's radius/width to hug the track more closely instead of
+       papering over the gap. */
+    .cl-card-container { position: relative; width: 100%; aspect-ratio: 305 / 161; overflow: hidden; }
+    .cl-gauge { position: absolute; top: 0; left: 0; width: 311px; max-width: none; height: 311px; }
+    .cl-gauge-fill-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .cl-gauge-fill-circle {
+      fill: none;
+      stroke: #fd8c00;
+      stroke-width: 12px;
+      stroke-linecap: round;
+      /* A native <circle> stroke-dash starts at 3 o'clock, which is
+         conic-equivalent 90deg — so to land the visible start at our
+         target 267deg, rotate by (267 - 90) = 177deg. */
+      transform: rotate(177deg);
+      transform-origin: 155.5px 155.5px;
+      stroke-dasharray: 365.1 945.62;
+    }
+    .cl-gauge-fill-circle--animated {
+      stroke-dashoffset: 365.1;
+      animation: cl-gauge-sweep-draw 2.5s cubic-bezier(0.5,0,0.2098,1) forwards;
+    }
+    .cl-gauge-fill-circle--static { stroke-dashoffset: 0; }
+    @keyframes cl-gauge-sweep-draw {
+      from { stroke-dashoffset: 365.1; }
+      to   { stroke-dashoffset: 0; }
+    }
+
+    .cl-level-block {
+      position: absolute;
+      left: 50%;
+      top: 56px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .cl-level-heading {
+      display: flex;
+      gap: 5px;
+      align-items: flex-start;
+      justify-content: center;
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      line-height: 1.1;
+      letter-spacing: -0.32px;
+      color: #11302a;
+      white-space: nowrap;
+    }
+
+    /* Rolling digit — odometer-style: one smooth, continuous slide through
+       a full lap of 1-2-3-4 plus a second lap that stops at the real
+       result (here, Care Level 3: 1->2->3->4->1->2->3), rather than
+       stopping/holding at each individual digit along the way. One strip
+       of 7 stacked digits slides up as a single unit, matching the
+       gauge's 2.5s duration so both settle at the same instant. */
+    .cl-number { position: relative; width: 18px; height: 35px; overflow: hidden; flex-shrink: 0; }
+    .cl-number-strip {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: cl-digit-cycle 2.5s cubic-bezier(0.5,0,0.21,1) forwards;
+    }
+    .cl-number-strip span { height: 35px; line-height: 35px; }
+    @keyframes cl-digit-cycle {
+      from { transform: translate(-50%, 0px); }
+      to   { transform: translate(-50%, -210px); }
+      100%    { transform: translate(-50%, -210px); }
+    }
+
+    /* ─── Skeleton shimmer (generic) ─── */
+    .cl-skel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #e0ebe8;
+      height: 24px;
+      width: 100%;
+    }
+    .cl-skel--sm { width: 120px; }
+    .cl-skel::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 160px;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #ffffff 54.5%, rgba(255,255,255,0) 100%);
+      animation: cl-shimmer 1.6s ease-in-out infinite;
+    }
+    .cl-skel--delay1::after { animation-delay: .3s; }
+    .cl-skel--delay2::after { animation-delay: .6s; }
+    @keyframes cl-shimmer {
+      0%   { transform: translateX(-160px); }
+      100% { transform: translateX(calc(100% + 160px)); }
+    }
+
+    .cl-content { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .cl-disclaimer { display: flex; gap: 2px; align-items: center; justify-content: center; width: 100%; }
+    .cl-disclaimer p {
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 400;
+      line-height: 16px; letter-spacing: -0.52px; color: #656766; white-space: nowrap;
+    }
+    .cl-disclaimer img { width: 20px; height: 20px; }
+
+    /* ─── CTA button ─── */
+    .cl-cta-btn {
+      width: 100%;
+      height: 44px;
+      background: #e6f4ef;
+      border: 1px solid #347f71;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #347f71;
+      letter-spacing: -0.32px;
+      transition: opacity 0.15s ease;
+    }
+    .cl-cta-btn:hover { opacity: 0.85; }
+
+    /* ─── Care alerts ─── */
+    .cl-alerts-title {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 25px; font-weight: 600; color: #11302a;
+      line-height: 32px; letter-spacing: -0.5px; text-align: center; width: 100%;
+    }
+    .cl-alerts-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .cl-alert-card {
+      background: #f6f9f8; border-radius: 12px; padding: 16px;
+      display: flex; flex-direction: column; gap: 8px; width: 100%;
+    }
+    .cl-alert-title { display: flex; gap: 8px; align-items: center; width: 100%; }
+    .cl-alert-title img { width: 28px; height: 28px; flex-shrink: 0; }
+    .cl-alert-title .cl-alert-name {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500;
+      color: #121212; letter-spacing: -0.32px; white-space: nowrap;
+    }
+    .cl-alert-title .cl-alert-status {
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 400;
+      color: #656766; letter-spacing: -0.28px; flex: 1;
+    }
+
+    /* ─── Recommended actions ─── */
+    .cl-actions-wrap { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .cl-actions-label {
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+      color: #3e4141; letter-spacing: -0.28px; line-height: 20px;
+    }
+    .cl-actions-card { background: #f6f9f8; border-radius: 12px; overflow: hidden; width: 100%; }
+    .cl-action-item { display: flex; gap: 12px; align-items: center; padding: 16px; width: 100%; }
+    .cl-action-item p {
+      flex: 1; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 400;
+      color: #3e4141; letter-spacing: -0.32px; line-height: 24px;
+    }
+    .cl-action-item img { width: 24px; height: 24px; flex-shrink: 0; }
+    .cl-action-divider { height: 1px; background: #edf3f2; width: 100%; }
+
+    /* ─── Results ─── */
+    .cl-results-title {
+      font-family: 'LT Soul', 'Poppins', sans-serif;
+      font-size: 25px; font-weight: 600; color: #11302a;
+      line-height: 32px; letter-spacing: -0.5px; text-align: center; width: 100%;
+    }
+    .cl-results-card { background: #f6f9f8; border-radius: 12px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .cl-results-inner { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 20px 16px 0; }
+    .cl-score-bar { display: flex; gap: 2px; width: 100%; border-radius: 4px; }
+    .cl-score-seg { height: 20px; border-radius: 2px; }
+    .cl-breakdown { display: flex; flex-direction: column; width: 100%; }
+    .cl-breakdown-row { display: flex; gap: 12px; width: 100%; }
+    .cl-breakdown-dot-col { display: flex; align-items: flex-start; padding: 18px 0 16px; }
+    .cl-breakdown-dot { width: 12px; height: 12px; border-radius: 20px; flex-shrink: 0; }
+    .cl-breakdown-text-col { flex: 1; min-width: 0; padding: 12px 0; border-bottom: 1px solid #dfebe8; }
+    .cl-breakdown-row:last-child .cl-breakdown-text-col { border-bottom: none; }
+    .cl-breakdown-heading {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+      color: #11302a; letter-spacing: -0.32px; margin-bottom: 4px;
+    }
+    .cl-breakdown-list { list-style: disc; padding-left: 24px; }
+    .cl-breakdown-list li {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 400;
+      color: #656766; letter-spacing: -0.48px; line-height: 24px;
+    }
+    .cl-results-footer {
+      border-top: 1px solid #dfecea; display: flex; gap: 16px; align-items: center;
+      padding: 16px; width: 100%;
+    }
+    .cl-footer-link {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+      color: #347f71; letter-spacing: -0.32px; cursor: pointer;
+    }
+    .cl-footer-link:hover { opacity: 0.85; }
+
+    /* ─── Screen dissolve (Figma prototype interaction: After delay 4000ms,
+       Navigate to "Care Level 3 - High Needs", Dissolve, 300ms,
+       cubic-bezier(0.63,0,0.28,1)) ─── */
+    .cl-screens { position: relative; }
+    .cl-screen { width: 100%; transition: opacity 300ms cubic-bezier(0.63,0,0.28,1); }
+    .cl-screen--incoming { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; }
+    .cl-screens.cl-dissolve .cl-screen--outgoing { opacity: 0; pointer-events: none; }
+    .cl-screens.cl-dissolve .cl-screen--incoming { opacity: 1; pointer-events: auto; }
+
+    .cl-subtitle {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 400;
+      color: #11302a; letter-spacing: -0.32px; line-height: 24px; text-align: center;
+    }
+    .cl-learn-more-link {
+      position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+      color: #347f71; letter-spacing: -0.32px; line-height: 24px; cursor: pointer;
+    }
+    .cl-learn-more-link:hover { opacity: 0.85; }
+    .cl-description {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 400;
+      color: #3e4141; letter-spacing: -0.32px; line-height: 24px; text-align: center; width: 100%;
+    }
+    .cl-alert-name--full { flex: 1; }
+    .cl-alert-body {
+      font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 400;
+      color: #3e4141; letter-spacing: -0.32px; line-height: 24px; width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<p class="phone-label">Care Level 1 — Loading</p>
+<div class="phone-device">
+<div class="phone">
+  <div class="phone-notch">
+    <div class="phone-notch-speaker"></div>
+    <div class="phone-notch-cam"></div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+        <rect x="0" y="8" width="3" height="4" rx="1" fill="#11302a"/>
+        <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#11302a"/>
+        <rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="#11302a"/>
+        <rect x="15" y="0" width="3" height="12" rx="1" fill="#11302a"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#11302a"/>
+        <path d="M8 6.5A4.5 4.5 0 0 0 4.05 8.2l1.42 1.43A2.5 2.5 0 0 1 8 8.5a2.5 2.5 0 0 1 2.53.13L11.95 7.2A4.5 4.5 0 0 0 8 6.5z" fill="#11302a"/>
+        <path d="M8 3C5.24 3 2.73 4.1.88 5.92l1.41 1.41A6.97 6.97 0 0 1 8 5a6.97 6.97 0 0 1 5.71 2.33l1.41-1.41A9.96 9.96 0 0 0 8 3z" fill="#11302a"/>
+      </svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#11302a" stroke-opacity="0.35"/>
+        <rect x="2" y="2" width="18" height="8" rx="2" fill="#11302a"/>
+        <path d="M23 3.5v5A2.5 2.5 0 0 0 23 3.5z" fill="#11302a" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="main">
+    <div class="cl-screens">
+    <div class="cl-screen cl-screen--outgoing" id="screen-loading">
+    <div class="cl-main-band">
+
+      <!-- Section 1: Stages card + CTA -->
+      <div class="cl-section">
+        <div class="cl-stages-card">
+
+          <div class="cl-card-container">
+            <div class="cl-gauge">
+              <svg class="cl-gauge-fill-svg" viewBox="0 0 311 311">
+                <defs>
+                  <mask id="cl-gauge-mask-loading" maskUnits="userSpaceOnUse" x="0" y="0" width="311" height="311" style="mask-type:alpha">
+                    <path transform="translate(9.66596e-05 -0.168252)" d="M36.872 54.7942C38.5378 52.829 41.4935 52.6779 43.4081 54.4017C45.3228 56.1256 45.4705 59.0717 43.8085 61.0403C20.882 88.1962 8.63281 122.785 9.36026 158.318C9.41298 160.894 7.44485 163.09 4.87198 163.225C2.2991 163.36 0.0966363 161.382 0.0389687 158.806C-0.811826 120.802 12.2941 83.7934 36.872 54.7942ZM267.593 54.4017C269.507 52.678 272.463 52.8279 274.129 54.7933C286.309 69.1648 295.784 85.6409 302.081 103.423C308.378 121.206 311.383 139.973 310.962 158.807C310.904 161.383 308.702 163.36 306.129 163.225C303.556 163.09 301.587 160.894 301.64 158.319C302 140.709 299.174 123.165 293.286 106.537C287.398 89.9102 278.553 74.498 267.191 61.0393C265.53 59.0707 265.678 56.1255 267.593 54.4017ZM148.123 0.00516692C150.696 -0.116975 152.823 1.94206 152.868 4.51786C152.913 7.09388 150.859 9.21109 148.286 9.33817C112.79 11.0911 79.1388 25.7227 53.6483 50.4876C51.8006 52.2828 48.8523 52.3414 46.9989 50.552C45.1458 48.7625 45.0895 45.8031 46.9335 44.0042C74.1476 17.4633 110.152 1.80746 148.123 0.00516692ZM162.877 0.00516692C200.848 1.80741 236.852 17.4632 264.066 44.0042C265.911 45.803 265.855 48.7623 264.002 50.552C262.149 52.3415 259.199 52.2828 257.351 50.4876C231.861 25.723 198.211 11.0912 162.715 9.33817C160.141 9.2111 158.088 7.09388 158.133 4.51786C158.178 1.94222 160.304 -0.116712 162.877 0.00516692Z" fill="#ffffff"/>
+                  </mask>
+                </defs>
+                <path class="cl-gauge-track-path" transform="translate(9.66596e-05 -0.168252)" d="M36.872 54.7942C38.5378 52.829 41.4935 52.6779 43.4081 54.4017C45.3228 56.1256 45.4705 59.0717 43.8085 61.0403C20.882 88.1962 8.63281 122.785 9.36026 158.318C9.41298 160.894 7.44485 163.09 4.87198 163.225C2.2991 163.36 0.0966363 161.382 0.0389687 158.806C-0.811826 120.802 12.2941 83.7934 36.872 54.7942ZM267.593 54.4017C269.507 52.678 272.463 52.8279 274.129 54.7933C286.309 69.1648 295.784 85.6409 302.081 103.423C308.378 121.206 311.383 139.973 310.962 158.807C310.904 161.383 308.702 163.36 306.129 163.225C303.556 163.09 301.587 160.894 301.64 158.319C302 140.709 299.174 123.165 293.286 106.537C287.398 89.9102 278.553 74.498 267.191 61.0393C265.53 59.0707 265.678 56.1255 267.593 54.4017ZM148.123 0.00516692C150.696 -0.116975 152.823 1.94206 152.868 4.51786C152.913 7.09388 150.859 9.21109 148.286 9.33817C112.79 11.0911 79.1388 25.7227 53.6483 50.4876C51.8006 52.2828 48.8523 52.3414 46.9989 50.552C45.1458 48.7625 45.0895 45.8031 46.9335 44.0042C74.1476 17.4633 110.152 1.80746 148.123 0.00516692ZM162.877 0.00516692C200.848 1.80741 236.852 17.4632 264.066 44.0042C265.911 45.803 265.855 48.7623 264.002 50.552C262.149 52.3415 259.199 52.2828 257.351 50.4876C231.861 25.723 198.211 11.0912 162.715 9.33817C160.141 9.2111 158.088 7.09388 158.133 4.51786C158.178 1.94222 160.304 -0.116712 162.877 0.00516692Z" fill="#c3d9d6"/>
+                <g mask="url(#cl-gauge-mask-loading)">
+                  <circle class="cl-gauge-fill-circle cl-gauge-fill-circle--animated" cx="155.5" cy="155.5" r="150.5" />
+                </g>
+              </svg>
+            </div>
+            <div class="cl-level-block">
+              <div class="cl-level-heading">
+                <p>Care Level</p>
+                <div class="cl-number">
+                  <div class="cl-number-strip">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cl-skel cl-skel--sm"></div>
+            </div>
+          </div>
+
+          <div class="cl-content">
+            <div class="cl-skel"></div>
+            <div class="cl-disclaimer">
+              <p>This result is not a replacement for medical care</p>
+              <img src="assets/care-level/disclaimer-icon.svg" alt="" />
+            </div>
+          </div>
+
+        </div>
+
+        <button class="cl-cta-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:8px;">
+            <path d="M12 15V3m0 0L8 7m4-4l4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" stroke="#347f71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Share PDF
+        </button>
+      </div>
+
+      <!-- Section 2: Care Alerts + Recommended actions -->
+      <div class="cl-section">
+        <p class="cl-alerts-title">Care Alerts &amp; Recommendations</p>
+
+        <div class="cl-alerts-list">
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-high-priority.svg" alt="" />
+              <span class="cl-alert-name">High Priority</span>
+              <span class="cl-alert-status">Generating...</span>
+            </div>
+            <div class="cl-skel"></div>
+          </div>
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-monitor.svg" alt="" />
+              <span class="cl-alert-name">Monitor Closely</span>
+              <span class="cl-alert-status">Generating...</span>
+            </div>
+            <div class="cl-skel cl-skel--delay1"></div>
+          </div>
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-positive.svg" alt="" />
+              <span class="cl-alert-name">Positive Note</span>
+              <span class="cl-alert-status">Generating...</span>
+            </div>
+            <div class="cl-skel cl-skel--delay2"></div>
+          </div>
+        </div>
+
+        <div class="cl-actions-wrap">
+          <p class="cl-actions-label">Recommended actions</p>
+          <div class="cl-actions-card">
+            <div class="cl-action-item">
+              <p>🩺 Schedule medical review within 2 weeks</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🌙 Implement evening routine to reduce sundowning</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🧠 Consider memory aids and visual cues</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🤝 Connect with local dementia support groups</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Care Level Results -->
+      <div class="cl-section">
+        <p class="cl-results-title">Care Level Results</p>
+        <div class="cl-results-card">
+          <div class="cl-results-inner">
+            <div class="cl-score-bar">
+              <div class="cl-score-seg" style="background:#69c975; flex:53"></div>
+              <div class="cl-score-seg" style="background:#fdc500; flex:31"></div>
+              <div class="cl-score-seg" style="background:#fd8c00; flex:7"></div>
+              <div class="cl-score-seg" style="background:#d43611; flex:9"></div>
+            </div>
+            <div class="cl-breakdown">
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#69c975"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">No noticeable decline</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Memory and Recall</li>
+                    <li>Orientation to Time and Place</li>
+                    <li>Decision-Making and Problem Solving</li>
+                    <li>Mood and Behavior Changes</li>
+                    <li>Household Activities and Hobbies</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#fdc500"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Mild changes</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Awareness and Focus</li>
+                    <li>Communication and Language</li>
+                    <li>Community and Social Engagement</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#fd8c00"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Moderate difficulty</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Personal Care and Hygiene</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#d43611"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Major support needed</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Mobility and Getting Around</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cl-results-footer">
+            <span class="cl-footer-link">Learn more</span>
+            <span class="cl-footer-link">View Trends</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cl-main-band -->
+    </div><!-- /screen-loading -->
+
+    <!-- Destination screen (Figma node 19966:16011, "Care Level 3 - High Needs") -->
+    <div class="cl-screen cl-screen--incoming" id="screen-resolved" aria-hidden="true">
+    <div class="cl-main-band">
+
+      <!-- Section 1: Stages card + CTA -->
+      <div class="cl-section">
+        <div class="cl-stages-card">
+
+          <div class="cl-card-container">
+            <div class="cl-gauge">
+              <svg class="cl-gauge-fill-svg" viewBox="0 0 311 311">
+                <defs>
+                  <mask id="cl-gauge-mask-resolved" maskUnits="userSpaceOnUse" x="0" y="0" width="311" height="311" style="mask-type:alpha">
+                    <path transform="translate(9.66596e-05 -0.168252)" d="M36.872 54.7942C38.5378 52.829 41.4935 52.6779 43.4081 54.4017C45.3228 56.1256 45.4705 59.0717 43.8085 61.0403C20.882 88.1962 8.63281 122.785 9.36026 158.318C9.41298 160.894 7.44485 163.09 4.87198 163.225C2.2991 163.36 0.0966363 161.382 0.0389687 158.806C-0.811826 120.802 12.2941 83.7934 36.872 54.7942ZM267.593 54.4017C269.507 52.678 272.463 52.8279 274.129 54.7933C286.309 69.1648 295.784 85.6409 302.081 103.423C308.378 121.206 311.383 139.973 310.962 158.807C310.904 161.383 308.702 163.36 306.129 163.225C303.556 163.09 301.587 160.894 301.64 158.319C302 140.709 299.174 123.165 293.286 106.537C287.398 89.9102 278.553 74.498 267.191 61.0393C265.53 59.0707 265.678 56.1255 267.593 54.4017ZM148.123 0.00516692C150.696 -0.116975 152.823 1.94206 152.868 4.51786C152.913 7.09388 150.859 9.21109 148.286 9.33817C112.79 11.0911 79.1388 25.7227 53.6483 50.4876C51.8006 52.2828 48.8523 52.3414 46.9989 50.552C45.1458 48.7625 45.0895 45.8031 46.9335 44.0042C74.1476 17.4633 110.152 1.80746 148.123 0.00516692ZM162.877 0.00516692C200.848 1.80741 236.852 17.4632 264.066 44.0042C265.911 45.803 265.855 48.7623 264.002 50.552C262.149 52.3415 259.199 52.2828 257.351 50.4876C231.861 25.723 198.211 11.0912 162.715 9.33817C160.141 9.2111 158.088 7.09388 158.133 4.51786C158.178 1.94222 160.304 -0.116712 162.877 0.00516692Z" fill="#ffffff"/>
+                  </mask>
+                </defs>
+                <path class="cl-gauge-track-path" transform="translate(9.66596e-05 -0.168252)" d="M36.872 54.7942C38.5378 52.829 41.4935 52.6779 43.4081 54.4017C45.3228 56.1256 45.4705 59.0717 43.8085 61.0403C20.882 88.1962 8.63281 122.785 9.36026 158.318C9.41298 160.894 7.44485 163.09 4.87198 163.225C2.2991 163.36 0.0966363 161.382 0.0389687 158.806C-0.811826 120.802 12.2941 83.7934 36.872 54.7942ZM267.593 54.4017C269.507 52.678 272.463 52.8279 274.129 54.7933C286.309 69.1648 295.784 85.6409 302.081 103.423C308.378 121.206 311.383 139.973 310.962 158.807C310.904 161.383 308.702 163.36 306.129 163.225C303.556 163.09 301.587 160.894 301.64 158.319C302 140.709 299.174 123.165 293.286 106.537C287.398 89.9102 278.553 74.498 267.191 61.0393C265.53 59.0707 265.678 56.1255 267.593 54.4017ZM148.123 0.00516692C150.696 -0.116975 152.823 1.94206 152.868 4.51786C152.913 7.09388 150.859 9.21109 148.286 9.33817C112.79 11.0911 79.1388 25.7227 53.6483 50.4876C51.8006 52.2828 48.8523 52.3414 46.9989 50.552C45.1458 48.7625 45.0895 45.8031 46.9335 44.0042C74.1476 17.4633 110.152 1.80746 148.123 0.00516692ZM162.877 0.00516692C200.848 1.80741 236.852 17.4632 264.066 44.0042C265.911 45.803 265.855 48.7623 264.002 50.552C262.149 52.3415 259.199 52.2828 257.351 50.4876C231.861 25.723 198.211 11.0912 162.715 9.33817C160.141 9.2111 158.088 7.09388 158.133 4.51786C158.178 1.94222 160.304 -0.116712 162.877 0.00516692Z" fill="#c3d9d6"/>
+                <g mask="url(#cl-gauge-mask-resolved)">
+                  <circle class="cl-gauge-fill-circle cl-gauge-fill-circle--static" cx="155.5" cy="155.5" r="150.5" />
+                </g>
+              </svg>
+            </div>
+            <div class="cl-level-block">
+              <div class="cl-level-heading">
+                <p>Care Level 3</p>
+              </div>
+              <p class="cl-subtitle">High Needs</p>
+            </div>
+            <span class="cl-learn-more-link">Learn more</span>
+          </div>
+
+          <div class="cl-content">
+            <p class="cl-description">Significant caregiving support is needed. Most daily activities, including hygiene and mobility, require hands-on help and close involvement from caregivers.</p>
+            <div class="cl-disclaimer">
+              <p>This result is not a replacement for medical care</p>
+              <img src="assets/care-level/disclaimer-icon.svg" alt="" />
+            </div>
+          </div>
+
+        </div>
+
+        <button class="cl-cta-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:8px;">
+            <path d="M12 15V3m0 0L8 7m4-4l4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" stroke="#347f71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Share PDF
+        </button>
+      </div>
+
+      <!-- Section 2: Care Alerts + Recommended actions -->
+      <div class="cl-section">
+        <p class="cl-alerts-title">Care Alerts &amp; Recommendations</p>
+
+        <div class="cl-alerts-list">
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-high-priority.svg" alt="" />
+              <span class="cl-alert-name cl-alert-name--full">High Priority</span>
+            </div>
+            <p class="cl-alert-body">Memory decline detected over past 2 months. Consider scheduling doctor appointment.</p>
+          </div>
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-monitor.svg" alt="" />
+              <span class="cl-alert-name cl-alert-name--full">Monitor Closely</span>
+            </div>
+            <p class="cl-alert-body">Sleep issues reported (night wandering, sundowning). Consider sleep hygiene improvements.</p>
+          </div>
+          <div class="cl-alert-card">
+            <div class="cl-alert-title">
+              <img src="assets/care-level/alert-positive.svg" alt="" />
+              <span class="cl-alert-name cl-alert-name--full">Positive Note</span>
+            </div>
+            <p class="cl-alert-body">Personal care and mobility remain stable. Great job maintaining routines!</p>
+          </div>
+        </div>
+
+        <div class="cl-actions-wrap">
+          <p class="cl-actions-label">Recommended actions</p>
+          <div class="cl-actions-card">
+            <div class="cl-action-item">
+              <p>🩺 Schedule medical review within 2 weeks</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🌙 Implement evening routine to reduce sundowning</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🧠 Consider memory aids and visual cues</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+            <div class="cl-action-divider"></div>
+            <div class="cl-action-item">
+              <p>🤝 Connect with local dementia support groups</p>
+              <img src="assets/care-level/action-icon.svg" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Care Level Results -->
+      <div class="cl-section">
+        <p class="cl-results-title">Care Level Results</p>
+        <div class="cl-results-card">
+          <div class="cl-results-inner">
+            <div class="cl-score-bar">
+              <div class="cl-score-seg" style="background:#69c975; flex:53"></div>
+              <div class="cl-score-seg" style="background:#fdc500; flex:31"></div>
+              <div class="cl-score-seg" style="background:#fd8c00; flex:7"></div>
+              <div class="cl-score-seg" style="background:#d43611; flex:9"></div>
+            </div>
+            <div class="cl-breakdown">
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#69c975"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">No noticeable decline</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Memory and Recall</li>
+                    <li>Orientation to Time and Place</li>
+                    <li>Decision-Making and Problem Solving</li>
+                    <li>Mood and Behavior Changes</li>
+                    <li>Household Activities and Hobbies</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#fdc500"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Mild changes</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Awareness and Focus</li>
+                    <li>Communication and Language</li>
+                    <li>Community and Social Engagement</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#fd8c00"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Moderate difficulty</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Personal Care and Hygiene</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="cl-breakdown-row">
+                <div class="cl-breakdown-dot-col"><div class="cl-breakdown-dot" style="background:#d43611"></div></div>
+                <div class="cl-breakdown-text-col">
+                  <p class="cl-breakdown-heading">Major support needed</p>
+                  <ul class="cl-breakdown-list">
+                    <li>Mobility and Getting Around</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cl-results-footer">
+            <span class="cl-footer-link">Learn more</span>
+            <span class="cl-footer-link">View Trends</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cl-main-band -->
+    </div><!-- /screen-resolved -->
+    </div><!-- /cl-screens -->
+  </div><!-- /main -->
+
+  <script>
+    (function () {
+      var screens = document.querySelector('.cl-screens');
+      var loading = document.getElementById('screen-loading');
+      var resolved = document.getElementById('screen-resolved');
+
+      setTimeout(function () {
+        screens.classList.add('cl-dissolve');
+        resolved.removeAttribute('aria-hidden');
+        loading.setAttribute('aria-hidden', 'true');
+
+        loading.addEventListener('transitionend', function onEnd(e) {
+          if (e.propertyName !== 'opacity') return;
+          loading.style.display = 'none';
+          resolved.style.position = 'static';
+          loading.removeEventListener('transitionend', onEnd);
+        });
+      }, 6000);
+    })();
+  </script>
+
+</div><!-- /phone -->
+</div><!-- /phone-device -->
+
+</body>
+</html>
